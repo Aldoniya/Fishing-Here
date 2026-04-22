@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Zanzibar Fishing Hotspot</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="/" class="logo">
+        <i class="fas fa-fish-fins"></i>
+        <span>Zanzibar Fishing</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/dashboard" class="nav-item active">
+        <i class="fas fa-th-large"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/map" class="nav-item">
+        <i class="fas fa-map-marked-alt"></i>
+        <span>Fishing Map</span>
+      </a>
+      <a href="/weather" class="nav-item">
+        <i class="fas fa-cloud-sun"></i>
+        <span>Weather</span>
+      </a>
+      <a href="#" class="nav-item" id="myRoutes">
+        <i class="fas fa-route"></i>
+        <span>My Routes</span>
+      </a>
+      <a href="#" class="nav-item" id="myComments">
+        <i class="fas fa-comment-dots"></i>
+        <span>My Comments</span>
+      </a>
+      <a href="#" class="nav-item" id="profileLink">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="#" class="nav-item" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Header -->
+    <header class="top-header">
+      <button class="menu-toggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="header-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search fishing spots...">
+      </div>
+      <div class="header-actions">
+        <div class="notification-bell">
+          <i class="fas fa-bell"></i>
+          <span class="badge">3</span>
+        </div>
+        <div class="user-profile">
+          <div class="user-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <span class="user-name" id="userName">User</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+      <!-- Welcome Section -->
+      <div class="welcome-section">
+        <h1>Welcome back, <span id="welcomeName">Fisherman</span>!</h1>
+        <p>Here's what's happening with your fishing activities</p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #e3f2fd;">
+            <i class="fas fa-map-marker-alt" style="color: #1976d2;"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalSpots">10</span>
+            <span class="stat-label">Fishing Spots</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #e8f5e9;">
+            <i class="fas fa-route" style="color: #388e3c;"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalRoutes">0</span>
+            <span class="stat-label">My Routes</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #fff3e0;">
+            <i class="fas fa-comment" style="color: #f57c00;"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalComments">0</span>
+            <span class="stat-label">Comments</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #fce4ec;">
+            <i class="fas fa-clock" style="color: #c2185b;"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="lastVisit">-</span>
+            <span class="stat-label">Last Visit</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weather Widget -->
+      <div class="dashboard-widgets">
+        <div class="widget weather-widget-card">
+          <div class="widget-header">
+            <h3><i class="fas fa-cloud-sun"></i> Current Weather</h3>
+            <span class="widget-location">Zanzibar, Tanzania</span>
+          </div>
+          <div class="weather-current">
+            <div class="weather-temp">
+              <span class="temp-value">28</span>
+              <span class="temp-unit">°C</span>
+            </div>
+            <div class="weather-condition">Partly Cloudy</div>
+          </div>
+          <div class="weather-details-grid">
+            <div class="weather-detail">
+              <i class="fas fa-wind"></i>
+              <span>5 km/h NE</span>
+            </div>
+            <div class="weather-detail">
+              <i class="fas fa-tint"></i>
+              <span>75%</span>
+            </div>
+            <div class="weather-detail">
+              <i class="fas fa-water"></i>
+              <span>0.8m</span>
+            </div>
+          </div>
+          <a href="/weather" class="btn btn-sm">View Forecast</a>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="widget quick-actions">
+          <div class="widget-header">
+            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+          </div>
+          <div class="action-buttons">
+            <a href="/map" class="action-btn">
+              <i class="fas fa-map"></i>
+              <span>View Map</span>
+            </a>
+            <a href="#" class="action-btn" id="findNearbyBtn">
+              <i class="fas fa-location-arrow"></i>
+              <span>Find Nearby</span>
+            </a>
+            <a href="#" class="action-btn" id="addCommentBtn">
+              <i class="fas fa-comment-plus"></i>
+              <span>Add Comment</span>
+            </a>
+            <a href="#" class="action-btn" id="viewRoutesBtn">
+              <i class="fas fa-route"></i>
+              <span>My Routes</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Spots -->
+      <div class="recent-spots">
+        <div class="widget-header">
+          <h3><i class="fas fa-star"></i> Popular Fishing Spots</h3>
+          <a href="/map" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="spots-grid" id="spotsGrid">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- 7-Day Forecast Preview -->
+      <div class="forecast-preview">
+        <div class="widget-header">
+          <h3><i class="fas fa-calendar-week"></i> 7-Day Forecast</h3>
+          <a href="/weather" class="view-all">View Full <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="forecast-days" id="forecastDays">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Comment Modal -->
+  <div class="modal" id="commentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Send Feedback to Admin</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="commentForm">
+        <div class="form-group">
+          <label>Subject</label>
+          <input type="text" id="commentSubject" placeholder="What is this about?" required>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea id="commentMessage" placeholder="Tell us what you think..." rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send Comment</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

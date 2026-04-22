@@ -1,0 +1,492 @@
+/* filepath: public/css/weather.css */
+
+/* Weather Main Layout */
+.weather-main {
+  background: #f5f7fa;
+}
+
+/* Header */
+.weather-main .top-header {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--white);
+  padding: 20px 30px;
+}
+
+.weather-main .header-title h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.weather-main .header-title p {
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+.location-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+}
+
+.location-selector i {
+  font-size: 16px;
+}
+
+.location-selector select {
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+}
+
+.location-selector select option {
+  color: var(--dark);
+}
+
+/* Weather Content */
+.weather-content {
+  padding: 30px;
+}
+
+/* Current Weather Section */
+.current-weather-section {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.current-weather-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.current-main {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #eee;
+}
+
+.current-temp {
+  display: flex;
+  align-items: flex-start;
+}
+
+.current-temp .temp-value {
+  font-size: 72px;
+  font-weight: 700;
+  color: var(--dark);
+  line-height: 1;
+}
+
+.current-temp .temp-unit {
+  font-size: 28px;
+  color: var(--gray);
+  margin-top: 10px;
+}
+
+.current-condition {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  color: var(--dark);
+}
+
+.current-condition i {
+  font-size: 32px;
+  color: var(--primary);
+}
+
+.current-location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--gray);
+}
+
+.current-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-item i {
+  width: 40px;
+  height: 40px;
+  background: #e3f2fd;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-size: 16px;
+}
+
+.detail-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: var(--gray);
+}
+
+.detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* Fishing Conditions Card */
+.fishing-conditions-card {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: var(--radius);
+  padding: 24px;
+  color: var(--white);
+}
+
+.fishing-conditions-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.conditions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.condition-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.condition-item.good {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  opacity: 1;
+}
+
+.condition-item i {
+  font-size: 16px;
+}
+
+/* Forecast Section */
+.forecast-section {
+  margin-bottom: 30px;
+}
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+}
+
+.forecast-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: var(--transition);
+}
+
+.forecast-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.forecast-card.today {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--white);
+}
+
+.forecast-card .day {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.forecast-card .icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.forecast-card .temp-high {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.forecast-card .temp-low {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.forecast-card .condition {
+  font-size: 12px;
+  margin-top: 8px;
+  color: var(--gray);
+}
+
+.forecast-card.today .condition {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.forecast-card .fishing-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.forecast-card .fishing-status.good {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.forecast-card .fishing-status.moderate {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.forecast-card .fishing-status.poor {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.forecast-card.today .fishing-status {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--white);
+}
+
+/* Hourly Section */
+.hourly-section {
+  margin-bottom: 30px;
+}
+
+.hourly-scroll {
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.hourly-container {
+  display: flex;
+  gap: 12px;
+  min-width: max-content;
+}
+
+.hourly-item {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px;
+  min-width: 100px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.hourly-item .time {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 10px;
+}
+
+.hourly-item .icon {
+  font-size: 24px;
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+
+.hourly-item .temp {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* Marine Section */
+.marine-section {
+  margin-bottom: 30px;
+}
+
+.marine-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.marine-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.marine-card i {
+  font-size: 32px;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.marine-card h4 {
+  font-size: 14px;
+  color: var(--gray);
+  margin-bottom: 8px;
+}
+
+.marine-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+
+.marine-label {
+  font-size: 12px;
+  color: var(--gray);
+}
+
+/* Spot Weather Section */
+.spot-weather-section {
+  margin-bottom: 30px;
+}
+
+.spot-weather-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.spot-weather-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid var(--primary);
+}
+
+.spot-weather-card h4 {
+  font-size: 16px;
+  color: var(--dark);
+  margin-bottom: 12px;
+}
+
+.spot-weather-card .spot-temp {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+.spot-weather-card .spot-condition {
+  font-size: 14px;
+  color: var(--gray);
+  margin-bottom: 12px;
+}
+
+.spot-weather-card .spot-details {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  color: var(--gray);
+}
+
+.spot-weather-card .spot-details span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.spot-weather-card .spot-details i {
+  color: var(--primary);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .forecast-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .marine-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .current-weather-section {
+    grid-template-columns: 1fr;
+  }
+
+  .forecast-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .weather-content {
+    padding: 20px;
+  }
+
+  .current-main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .current-details {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .forecast-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .marine-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .forecast-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .current-details {
+    grid-template-columns: 1fr;
+  }
+}

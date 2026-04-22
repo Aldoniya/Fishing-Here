@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fishing Map - Zanzibar Fishing Hotspot</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="map-sidebar">
+    <div class="sidebar-header">
+      <a href="/" class="logo">
+        <i class="fas fa-fish-fins"></i>
+        <span>Zanzibar Fishing</span>
+      </a>
+    </div>
+    
+    <!-- Search -->
+    <div class="map-search">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="spotSearch" placeholder="Search fishing spots...">
+      </div>
+      <button class="btn btn-primary" id="findNearby">
+        <i class="fas fa-location-arrow"></i> Near Me
+      </button>
+    </div>
+
+    <!-- Spot List -->
+    <div class="spots-list">
+      <h3>Fishing Spots</h3>
+      <div id="spotsList">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Selected Spot Info -->
+    <div class="selected-spot" id="selectedSpot" style="display: none;">
+      <div class="spot-header">
+        <h3 id="spotName">Spot Name</h3>
+        <button class="close-spot">&times;</button>
+      </div>
+      <div class="spot-details">
+        <div class="detail-row">
+          <i class="fas fa-fish"></i>
+          <span id="spotFish">Fish Types</span>
+        </div>
+        <div class="detail-row">
+          <i class="fas fa-calendar"></i>
+          <span id="spotSeason">Best Season</span>
+        </div>
+        <div class="detail-row">
+          <i class="fas fa-ruler-vertical"></i>
+          <span id="spotDepth">Depth</span>
+        </div>
+        <div class="detail-row">
+          <i class="fas fa-ship"></i>
+          <span id="spotAccess">Access</span>
+        </div>
+        <div class="detail-row">
+          <i class="fas fa-shield-alt"></i>
+          <span id="spotSafety">Safety</span>
+        </div>
+      </div>
+      
+      <!-- Weather for this spot -->
+      <div class="spot-weather">
+        <h4>Weather at this spot</h4>
+        <div class="weather-mini" id="spotWeather">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+      
+      <!-- Route Button -->
+      <button class="btn btn-primary btn-block" id="getRoute">
+        <i class="fas fa-route"></i> Get Directions
+      </button>
+    </div>
+  </aside>
+
+  <!-- Map Container -->
+  <div class="map-container">
+    <div id="map"></div>
+    
+    <!-- Map Controls -->
+    <div class="map-controls">
+      <button class="map-control-btn" id="zoomIn" title="Zoom In">
+        <i class="fas fa-plus"></i>
+      </button>
+      <button class="map-control-btn" id="zoomOut" title="Zoom Out">
+        <i class="fas fa-minus"></i>
+      </button>
+      <button class="map-control-btn" id="locateMe" title="My Location">
+        <i class="fas fa-crosshairs"></i>
+      </button>
+      <button class="map-control-btn" id="toggleLayer" title="Toggle Layer">
+        <i class="fas fa-layer-group"></i>
+      </button>
+    </div>
+
+    <!-- Route Panel -->
+    <div class="route-panel" id="routePanel" style="display: none;">
+      <div class="route-header">
+        <h3>Route to <span id="routeDestination">Destination</span></h3>
+        <button class="close-route">&times;</button>
+      </div>
+      <div class="route-info">
+        <div class="route-stat">
+          <i class="fas fa-road"></i>
+          <span id="routeDistance">0 km</span>
+        </div>
+        <div class="route-stat">
+          <i class="fas fa-clock"></i>
+          <span id="routeTime">0 min</span>
+        </div>
+      </div>
+      <div class="route-steps" id="routeSteps">
+        <!-- Route steps populated by JavaScript -->
+      </div>
+      <div class="route-actions">
+        <button class="btn btn-outline" id="startNavigation">
+          <i class="fas fa-navigation"></i> Start Navigation
+        </button>
+        <button class="btn btn-secondary" id="saveRoute">
+          <i class="fas fa-save"></i> Save Route
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Location Marker -->
+  <div class="user-location-marker" id="userMarker" style="display: none;">
+    <i class="fas fa-user"></i>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/map.js"></script>
+</body>
+</html>

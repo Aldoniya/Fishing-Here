@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Zanzibar Fishing Hotspot</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Admin Layout -->
+  <div class="admin-layout">
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <i class="fas fa-fish-fins"></i>
+        <span>Admin Panel</span>
+      </div>
+      <nav class="admin-nav">
+        <a href="#" class="admin-nav-item active" data-section="dashboard">
+          <i class="fas fa-th-large"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="admin-nav-item" data-section="users">
+          <i class="fas fa-users"></i>
+          <span>Users</span>
+          <span class="badge" id="userCountBadge">0</span>
+        </a>
+        <a href="#" class="admin-nav-item" data-section="fishing-spots">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>Fishing Spots</span>
+        </a>
+        <a href="#" class="admin-nav-item" data-section="routes">
+          <i class="fas fa-route"></i>
+          <span>Routes</span>
+        </a>
+        <a href="#" class="admin-nav-item" data-section="comments">
+          <i class="fas fa-comments"></i>
+          <span>Comments</span>
+          <span class="badge warning" id="commentBadge">0</span>
+        </a>
+        <a href="#" class="admin-nav-item" data-section="activity">
+          <i class="fas fa-history"></i>
+          <span>Activity Log</span>
+        </a>
+        <a href="/" class="admin-nav-item">
+          <i class="fas fa-home"></i>
+          <span>Back to Site</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Admin Content -->
+    <main class="admin-main">
+      <!-- Admin Header -->
+      <header class="admin-header">
+        <div class="admin-header-left">
+          <button class="admin-menu-toggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1>Admin Dashboard</h1>
+        </div>
+        <div class="admin-header-right">
+          <div class="admin-user">
+            <div class="user-avatar">
+              <i class="fas fa-user-shield"></i>
+            </div>
+            <span id="adminName">Admin</span>
+          </div>
+          <button class="admin-logout" id="adminLogout">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Dashboard Section -->
+      <section class="admin-section active" id="section-dashboard">
+        <div class="admin-stats">
+          <div class="admin-stat-card">
+            <div class="stat-icon blue">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+              <span class="stat-number" id="statUsers">0</span>
+              <span class="stat-label">Total Users</span>
+            </div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="stat-icon green">
+              <i class="fas fa-user-check"></i>
+            </div>
+            <div class="stat-content">
+              <span class="stat-number" id="statActive">0</span>
+              <span class="stat-label">Active Users</span>
+            </div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="stat-icon orange">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="stat-content">
+              <span class="stat-number" id="statSpots">0</span>
+              <span class="stat-label">Fishing Spots</span>
+            </div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="stat-icon purple">
+              <i class="fas fa-comment-dots"></i>
+            </div>
+            <div class="stat-content">
+              <span class="stat-number" id="statComments">0</span>
+              <span class="stat-label">Pending Comments</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="admin-widget">
+          <div class="widget-header">
+            <h3><i class="fas fa-clock"></i> Recent Activity</h3>
+          </div>
+          <div class="activity-list" id="recentActivity">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="admin-widget">
+          <div class="widget-header">
+            <h3><i class="fas fa-chart-line"></i> Today's Statistics</h3>
+          </div>
+          <div class="quick-stats">
+            <div class="quick-stat">
+              <span class="qs-value" id="todayVisits">0</span>
+              <span class="qs-label">Website Visits Today</span>
+            </div>
+            <div class="quick-stat">
+              <span class="qs-value" id="totalRoutes">0</span>
+              <span class="qs-label">Total Routes</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Users Section -->
+      <section class="admin-section" id="section-users">
+        <div class="section-header">
+          <h2><i class="fas fa-users"></i> User Management</h2>
+          <div class="section-actions">
+            <input type="text" class="search-input" id="userSearch" placeholder="Search users...">
+          </div>
+        </div>
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Last Login</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Fishing Spots Section -->
+      <section class="admin-section" id="section-fishing-spots">
+        <div class="section-header">
+          <h2><i class="fas fa-map-marker-alt"></i> Fishing Spots</h2>
+          <button class="btn btn-primary" id="addSpotBtn">
+            <i class="fas fa-plus"></i> Add Spot
+          </button>
+        </div>
+        <div class="spots-admin-grid" id="spotsAdminGrid">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Routes Section -->
+      <section class="admin-section" id="section-routes">
+        <div class="section-header">
+          <h2><i class="fas fa-route"></i> Route Management</h2>
+          <button class="btn btn-primary" id="addRouteBtn">
+            <i class="fas fa-plus"></i> Add Route
+          </button>
+        </div>
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Distance</th>
+                <th>Est. Time</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="routesTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Comments Section -->
+      <section class="admin-section" id="section-comments">
+        <div class="section-header">
+          <h2><i class="fas fa-comments"></i> User Comments</h2>
+        </div>
+        <div class="comments-list" id="commentsList">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Activity Log Section -->
+      <section class="admin-section" id="section-activity">
+        <div class="section-header">
+          <h2><i class="fas fa-history"></i> Activity Log</h2>
+        </div>
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Details</th>
+                <th>IP Address</th>
+              </tr>
+            </thead>
+            <tbody id="activityTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Add Spot Modal -->
+  <div class="modal" id="spotModal">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h3>Add New Fishing Spot</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="spotForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Spot Name</label>
+            <input type="text" id="spotName" required>
+          </div>
+          <div class="form-group">
+            <label>Fish Types</label>
+            <input type="text" id="spotFish" placeholder="e.g., Tuna, Marlin">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Latitude</label>
+            <input type="number" step="0.0001" id="spotLat" required>
+          </div>
+          <div class="form-group">
+            <label>Longitude</label>
+            <input type="number" step="0.0001" id="spotLng" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Best Season</label>
+            <input type="text" id="spotSeason" placeholder="e.g., Oct-Mar">
+          </div>
+          <div class="form-group">
+            <label>Depth (meters)</label>
+            <input type="number" id="spotDepth">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Accessibility</label>
+            <select id="spotAccess">
+              <option value="Shore">Shore</option>
+              <option value="Boat">Boat</option>
+              <option value="Shore/Boat">Shore/Boat</option>
+              <option value="Snorkel/Boat">Snorkel/Boat</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Safety Level</label>
+            <select id="spotSafety">
+              <option value="Excellent">Excellent</option>
+              <option value="Good">Good</option>
+              <option value="Moderate">Moderate</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="spotDesc" rows="3"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Spot</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Respond Comment Modal -->
+  <div class="modal" id="respondModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Respond to Comment</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="respondForm">
+        <input type="hidden" id="commentId">
+        <div class="form-group">
+          <label>User's Message</label>
+          <div class="user-message" id="userMessage"></div>
+        </div>
+        <div class="form-group">
+          <label>Your Response</label>
+          <textarea id="adminResponse" rows="4" required></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send Response</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

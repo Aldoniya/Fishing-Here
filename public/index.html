@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Zanzibar Fishing Hotspot Detection System - Find the best fishing locations using GIS and Remote Sensing">
+  <title>Zanzibar Fishing Hotspot - Find Your Perfect Fishing Spot</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">
+        <i class="fas fa-fish-fins"></i>
+        <span>Zanzibar Fishing</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="nav-auth">
+        <a href="/login" class="btn btn-outline">Login</a>
+        <a href="/register" class="btn btn-primary">Register</a>
+      </div>
+      <button class="mobile-menu-btn">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>Discover the Best Fishing Spots in Zanzibar</h1>
+      <p>Using advanced GIS and Remote Sensing technology to help you find the perfect fishing location</p>
+      <div class="hero-buttons">
+        <a href="/register" class="btn btn-primary btn-lg">
+          <i class="fas fa-map-marker-alt"></i> Get Started
+        </a>
+        <a href="#features" class="btn btn-outline btn-lg">
+          <i class="fas fa-info-circle"></i> Learn More
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-number">10+</span>
+          <span class="stat-label">Fishing Spots</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">7-Day</span>
+          <span class="stat-label">Weather Forecast</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">GPS</span>
+          <span class="stat-label">Route Tracking</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <div class="container">
+      <h2 class="section-title">Our Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-map-marked-alt"></i>
+          </div>
+          <h3>Interactive Map</h3>
+          <p>View fishing hotspots on an interactive map with real-time location tracking</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-cloud-sun"></i>
+          </div>
+          <h3>Weather Forecast</h3>
+          <p>Get 7-day weather predictions for each fishing spot</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-route"></i>
+          </div>
+          <h3>Route Navigation</h3>
+          <p>Get directions to reach your chosen fishing destination</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-satellite"></i>
+          </div>
+          <h3>GIS & RS Technology</h3>
+          <p>Advanced satellite data for accurate hotspot detection</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h3>User Dashboard</h3>
+          <p>Personalized dashboard with your fishing history and preferences</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-comment-dots"></i>
+          </div>
+          <h3>Feedback System</h3>
+          <p>Communicate with admins to improve the platform</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="about">
+    <div class="container">
+      <h2 class="section-title">About Our System</h2>
+      <div class="about-content">
+        <div class="about-text">
+          <h3>GIS & Remote Sensing for Fishing</h3>
+          <p>Our platform uses Geographic Information System (GIS) and Remote Sensing (RS) technologies to identify and predict fishing hotspots in Zanzibar waters.</p>
+          <p>By analyzing satellite imagery, ocean conditions, water temperature, and historical fishing data, we provide accurate recommendations for the best fishing locations.</p>
+          <ul class="about-list">
+            <li><i class="fas fa-check"></i> Real-time satellite data analysis</li>
+            <li><i class="fas fa-check"></i> Historical fish migration patterns</li>
+            <li><i class="fas fa-check"></i> Ocean temperature monitoring</li>
+            <li><i class="fas fa-check"></i> Weather condition integration</li>
+          </ul>
+        </div>
+        <div class="about-image">
+          <div class="map-preview">
+            <i class="fas fa-map"></i>
+            <span>Zanzibar Map Preview</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Current Weather Widget -->
+  <section class="weather-widget">
+    <div class="container">
+      <div class="weather-card">
+        <div class="weather-header">
+          <h3><i class="fas fa-cloud-sun"></i> Current Weather - Zanzibar</h3>
+          <span class="weather-update">Updated just now</span>
+        </div>
+        <div class="weather-info">
+          <div class="weather-main">
+            <div class="temp">28°C</div>
+            <div class="condition">Partly Cloudy</div>
+          </div>
+          <div class="weather-details">
+            <div class="weather-item">
+              <i class="fas fa-wind"></i>
+              <span>Wind: 5 km/h NE</span>
+            </div>
+            <div class="weather-item">
+              <i class="fas fa-tint"></i>
+              <span>Humidity: 75%</span>
+            </div>
+            <div class="weather-item">
+              <i class="fas fa-water"></i>
+              <span>Wave Height: 0.8m</span>
+            </div>
+          </div>
+        </div>
+        <a href="/weather" class="btn btn-sm">View 7-Day Forecast</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="contact">
+    <div class="container">
+      <h2 class="section-title">Contact Us</h2>
+      <div class="contact-content">
+        <div class="contact-info">
+          <div class="contact-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Zanzibar, Tanzania</span>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <span>info@zanzibarfishing.com</span>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-phone"></i>
+            <span>+255 123 456 789</span>
+          </div>
+        </div>
+        <form class="contact-form" id="contactForm">
+          <input type="text" placeholder="Your Name" required>
+          <input type="email" placeholder="Your Email" required>
+          <textarea placeholder="Your Message" rows="5" required></textarea>
+          <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h3><i class="fas fa-fish-fins"></i> Zanzibar Fishing</h3>
+          <p>Your complete fishing hotspot detection system for Zanzibar</p>
+        </div>
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="/login">Login</a></li>
+            <li><a href="/register">Register</a></li>
+            <li><a href="/map">Fishing Map</a></li>
+            <li><a href="/weather">Weather</a></li>
+          </ul>
+        </div>
+        <div class="footer-social">
+          <h4>Follow Us</h4>
+          <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 Zanzibar Fishing Hotspot. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

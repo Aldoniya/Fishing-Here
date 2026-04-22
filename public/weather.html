@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather - Zanzibar Fishing Hotspot</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/weather.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="/" class="logo">
+        <i class="fas fa-fish-fins"></i>
+        <span>Zanzibar Fishing</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/dashboard" class="nav-item">
+        <i class="fas fa-th-large"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/map" class="nav-item">
+        <i class="fas fa-map-marked-alt"></i>
+        <span>Fishing Map</span>
+      </a>
+      <a href="/weather" class="nav-item active">
+        <i class="fas fa-cloud-sun"></i>
+        <span>Weather</span>
+      </a>
+      <a href="#" class="nav-item" id="myRoutes">
+        <i class="fas fa-route"></i>
+        <span>My Routes</span>
+      </a>
+      <a href="#" class="nav-item" id="myComments">
+        <i class="fas fa-comment-dots"></i>
+        <span>My Comments</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="#" class="nav-item" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content weather-main">
+    <header class="top-header">
+      <div class="header-title">
+        <h1><i class="fas fa-cloud-sun"></i> Weather Forecast</h1>
+        <p>7-day weather predictions for fishing in Zanzibar</p>
+      </div>
+      <div class="header-actions">
+        <div class="location-selector">
+          <i class="fas fa-map-marker-alt"></i>
+          <select id="locationSelect">
+            <option value="zanzibar">Zanzibar (Default)</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <div class="weather-content">
+      <!-- Current Weather -->
+      <div class="current-weather-section">
+        <div class="current-weather-card">
+          <div class="current-main">
+            <div class="current-temp">
+              <span class="temp-value" id="currentTemp">28</span>
+              <span class="temp-unit">°C</span>
+            </div>
+            <div class="current-condition">
+              <i class="fas fa-cloud-sun"></i>
+              <span id="currentCondition">Partly Cloudy</span>
+            </div>
+            <div class="current-location">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Zanzibar, Tanzania</span>
+            </div>
+          </div>
+          <div class="current-details">
+            <div class="detail-item">
+              <i class="fas fa-wind"></i>
+              <div class="detail-info">
+                <span class="detail-label">Wind</span>
+                <span class="detail-value" id="currentWind">5 km/h NE</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-tint"></i>
+              <div class="detail-info">
+                <span class="detail-label">Humidity</span>
+                <span class="detail-value" id="currentHumidity">75%</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-water"></i>
+              <div class="detail-info">
+                <span class="detail-label">Wave Height</span>
+                <span class="detail-value" id="currentWave">0.8m</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-eye"></i>
+              <div class="detail-info">
+                <span class="detail-label">Visibility</span>
+                <span class="detail-value" id="currentVisibility">10 km</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-sun"></i>
+              <div class="detail-info">
+                <span class="detail-label">UV Index</span>
+                <span class="detail-value" id="currentUV">6</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-sunrise"></i>
+              <div class="detail-info">
+                <span class="detail-label">Sunrise</span>
+                <span class="detail-value" id="currentSunrise">06:15</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fishing Conditions -->
+        <div class="fishing-conditions-card">
+          <h3><i class="fas fa-fish"></i> Today's Fishing Conditions</h3>
+          <div class="conditions-grid">
+            <div class="condition-item good">
+              <i class="fas fa-check-circle"></i>
+              <span>Good for fishing</span>
+            </div>
+            <div class="condition-item">
+              <i class="fas fa-clock"></i>
+              <span>Best: 6-9 AM, 4-7 PM</span>
+            </div>
+            <div class="condition-item">
+              <i class="fas fa-water"></i>
+              <span>Incoming Tide</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7-Day Forecast -->
+      <div class="forecast-section">
+        <h2 class="section-title">7-Day Forecast</h2>
+        <div class="forecast-grid" id="forecastGrid">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Hourly Forecast -->
+      <div class="hourly-section">
+        <h2 class="section-title">Hourly Forecast</h2>
+        <div class="hourly-scroll">
+          <div class="hourly-container" id="hourlyContainer">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Marine Conditions -->
+      <div class="marine-section">
+        <h2 class="section-title">Marine Conditions</h2>
+        <div class="marine-grid">
+          <div class="marine-card">
+            <i class="fas fa-water"></i>
+            <h4>Sea Temperature</h4>
+            <span class="marine-value">27°C</span>
+            <span class="marine-label">Optimal for fishing</span>
+          </div>
+          <div class="marine-card">
+            <i class="fas fa-wave-square"></i>
+            <h4>Wave Height</h4>
+            <span class="marine-value">0.5-1.2m</span>
+            <span class="marine-label">Moderate conditions</span>
+          </div>
+          <div class="marine-card">
+            <i class="fas fa-tide"></i>
+            <h4>Tide</h4>
+            <span class="marine-value">Incoming</span>
+            <span class="marine-label">Rising until 2PM</span>
+          </div>
+          <div class="marine-card">
+            <i class="fas fa-wind"></i>
+            <h4>Wind Speed</h4>
+            <span class="marine-value">5-10 km/h</span>
+            <span class="marine-label">Good for boating</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spot Weather -->
+      <div class="spot-weather-section">
+        <h2 class="section-title">Weather by Fishing Spot</h2>
+        <div class="spot-weather-grid" id="spotWeatherGrid">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/weather.js"></script>
+</body>
+</html>
