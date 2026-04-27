@@ -1,9 +1,40 @@
 // filepath: server/models/database.js
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const bcrypt = require('bcryptjs');
 
 const dbPath = path.join(__dirname, '..', '..', 'database.sqlite');
 const db = new sqlite3.Database(dbPath);
+
+// Seed demo users
+const seedDemoUsers = (callback) => {
+  const users = [
+    { username: 'admin', email: 'admin@zanzibar.com', password: 'admin123', role: 'admin' },
+    { username: 'user', email: 'user@zanzibar.com', password: 'user123', role: 'user' }
+  ];
+  
+  let created = 0;
+  users.forEach((user) => {
+    db.get('SELECT id FROM users WHERE email = ?', [user.email], (err, existing) => {
+      if (!existing) {
+        bcrypt.hash(user.password, 10, (err, hashed) => {
+          db.run(
+            'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
+            [user.username, user.email, hashed, user.role],
+            (err) => {
+              if (!err) console.log(`✅ Created demo ${user.role}: ${user.email}`);
+              created++;
+              if (created === users.length && callback) callback();
+            }
+          );
+        });
+      } else {
+        created++;
+        if (created === users.length && callback) callback();
+      }
+    });
+  });
+};
 
 const initialize = (callback) => {
   db.serialize(() => {
@@ -91,8 +122,11 @@ const initialize = (callback) => {
     // Seed initial fishing spots for Zanzibar
     seedFishingSpots();
     
-    console.log('✅ Database initialized successfully');
-    if (callback) callback();
+    // Seed demo users (admin and user)
+    seedDemoUsers(() => {
+      console.log('✅ Database initialized successfully');
+      if (callback) callback();
+    });
   });
 };
 
