@@ -1,7 +1,8 @@
 // filepath: public/js/main.js
 
-// API Base URL
-const API_URL = 'http://localhost:3000/api';
+// API Base URL - dynamically set based on environment (must be at top for other scripts to use)
+window.App = window.App || {};
+window.App.API_URL = window.location.origin + '/api';
 
 // Check if user is logged in
 const isLoggedIn = () => {
@@ -83,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = getToken();
     if (!token) return;
     
-    fetch(`${API_URL}/auth/me`, {
+    fetch(`${window.App.API_URL}/auth/me`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -103,5 +104,5 @@ window.App = {
   logout,
   formatDate,
   formatRelativeTime,
-  API_URL
+  API_URL: window.App.API_URL
 };

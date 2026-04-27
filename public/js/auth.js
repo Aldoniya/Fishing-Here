@@ -23,8 +23,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   
-  // Login form submission
-  if (loginForm) {
+  // Get API URL - handle case where window.App might not be defined yet
+const getApiUrl = () => {
+  if (window.App && window.App.API_URL) {
+    return window.App.API_URL;
+  }
+  return window.location.origin + '/api';
+};
+
+// Login form submission
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -32,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = document.getElementById('password').value;
       
       try {
-        const response = await fetch(`${window.App.API_URL}/auth/login`, {
+        const response = await fetch(`${getApiUrl()}/auth/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -82,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       try {
-        const response = await fetch(`${window.App.API_URL}/auth/register`, {
+        const response = await fetch(`${getApiUrl()}/auth/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -117,8 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   // Check if already logged in
-  if (window.App.isLoggedIn()) {
-    const user = window.App.getUser();
+  if (window.App && window.App.isLoggedIn && window.App.isLoggedIn()) {
+    const user = window.App && window.App.getUser ? window.App.getUser() : null;
     if (user?.role === 'admin') {
       window.location.href = '/admin';
     } else {
