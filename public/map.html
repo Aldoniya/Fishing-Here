@@ -13,7 +13,7 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
-<body>
+<body class="map-layout">
   <!-- Sidebar -->
   <aside class="map-sidebar">
     <div class="sidebar-header">
@@ -68,6 +68,42 @@
         <div class="detail-row">
           <i class="fas fa-shield-alt"></i>
           <span id="spotSafety">Safety</span>
+        </div>
+      </div>
+      
+      <!-- Coordinates -->
+      <div class="spot-coordinates">
+        <h4><i class="fas fa-map-marker-alt"></i> Coordinates</h4>
+        <div class="coord-grid">
+          <div class="coord-item">
+            <span class="coord-label">Latitude</span>
+            <span class="coord-value" id="spotLat">-</span>
+          </div>
+          <div class="coord-item">
+            <span class="coord-label">Longitude</span>
+            <span class="coord-value" id="spotLng">-</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Distance & ETA -->
+      <div class="spot-route-info" id="spotRouteInfo" style="display: none;">
+        <h4><i class="fas fa-route"></i> Route Information</h4>
+        <div class="route-info-grid">
+          <div class="route-info-item">
+            <i class="fas fa-road"></i>
+            <div class="route-info-text">
+              <span class="route-label">Distance</span>
+              <span class="route-value" id="spotDistance">-</span>
+            </div>
+          </div>
+          <div class="route-info-item">
+            <i class="fas fa-clock"></i>
+            <div class="route-info-text">
+              <span class="route-label">Est. Time</span>
+              <span class="route-value" id="spotETA">-</span>
+            </div>
+          </div>
         </div>
       </div>
       

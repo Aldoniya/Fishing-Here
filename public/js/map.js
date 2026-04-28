@@ -90,6 +90,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('spotAccess').textContent = selectedSpot.accessibility || 'Boat';
     document.getElementById('spotSafety').textContent = selectedSpot.safety_level || 'Good';
     
+    // Update coordinates
+    document.getElementById('spotLat').textContent = selectedSpot.latitude.toFixed(6);
+    document.getElementById('spotLng').textContent = selectedSpot.longitude.toFixed(6);
+    
+    // Calculate distance and ETA if user location is available
+    const routeInfoEl = document.getElementById('spotRouteInfo');
+    if (userLocation) {
+      const distance = calculateDistance(
+        userLocation[0], userLocation[1],
+        selectedSpot.latitude, selectedSpot.longitude
+      );
+      const etaMinutes = Math.round(distance / 40 * 60); // Assume 40 km/h
+      
+      document.getElementById('spotDistance').textContent = `${distance.toFixed(1)} km`;
+      document.getElementById('spotETA').textContent = etaMinutes < 60 
+        ? `${etaMinutes} min` 
+        : `${Math.floor(etaMinutes / 60)}h ${etaMinutes % 60}m`;
+      routeInfoEl.style.display = 'block';
+    } else {
+      routeInfoEl.style.display = 'none';
+    }
+    
     document.getElementById('selectedSpot').style.display = 'block';
     
     // Highlight in list

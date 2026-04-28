@@ -68,6 +68,14 @@
     </header>
 
     <div class="weather-content">
+      <!-- Animated Weather Background -->
+      <div class="weather-animation-bg" id="weatherAnimationBg">
+        <div class="weather-particles" id="weatherParticles"></div>
+        <div class="weather-sun" id="weatherSun"></div>
+        <div class="weather-clouds" id="weatherClouds"></div>
+        <div class="weather-rain" id="weatherRain"></div>
+      </div>
+      
       <!-- Current Weather -->
       <div class="current-weather-section">
         <div class="current-weather-card">
@@ -77,7 +85,9 @@
               <span class="temp-unit">°C</span>
             </div>
             <div class="current-condition">
-              <i class="fas fa-cloud-sun"></i>
+              <div class="weather-icon-animated" id="weatherIconAnimated">
+                <i class="fas fa-cloud-sun"></i>
+              </div>
               <span id="currentCondition">Partly Cloudy</span>
             </div>
             <div class="current-location">
@@ -146,6 +156,28 @@
             <div class="condition-item">
               <i class="fas fa-water"></i>
               <span>Incoming Tide</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Best Fishing Times -->
+        <div class="best-fishing-card">
+          <h3><i class="fas fa-clock"></i> Best Fishing Times Today</h3>
+          <div class="fishing-times-container" id="fishingTimesContainer">
+            <!-- Populated by JavaScript -->
+          </div>
+          <div class="solunar-data" id="solunarData">
+            <div class="solunar-item">
+              <span class="solunar-label">Moon Phase</span>
+              <span class="solunar-value" id="moonPhase">Waxing Gibbous</span>
+            </div>
+            <div class="solunar-item">
+              <span class="solunar-label">Major Period</span>
+              <span class="solunar-value" id="majorPeriod">6:15 AM - 8:15 AM</span>
+            </div>
+            <div class="solunar-item">
+              <span class="solunar-label">Minor Period</span>
+              <span class="solunar-value" id="minorPeriod">6:45 PM - 8:45 PM</span>
             </div>
           </div>
         </div>

@@ -175,6 +175,113 @@ body.map-layout {
   color: var(--dark);
 }
 
+/* Spot Coordinates */
+.spot-coordinates {
+  background: #fff;
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.spot-coordinates h4 {
+  font-size: 13px;
+  color: var(--dark);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spot-coordinates h4 i {
+  color: var(--primary);
+}
+
+.coord-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.coord-item {
+  background: #f5f7fa;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.coord-label {
+  display: block;
+  font-size: 11px;
+  color: var(--gray);
+  margin-bottom: 4px;
+}
+
+.coord-value {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dark);
+  font-family: monospace;
+}
+
+/* Spot Route Info */
+.spot-route-info {
+  background: #fff;
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.spot-route-info h4 {
+  font-size: 13px;
+  color: var(--dark);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spot-route-info h4 i {
+  color: var(--primary);
+}
+
+.route-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.route-info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #e3f2fd;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+}
+
+.route-info-item i {
+  color: var(--primary);
+  font-size: 16px;
+}
+
+.route-info-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.route-label {
+  font-size: 11px;
+  color: var(--gray);
+}
+
+.route-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
 /* Spot Weather */
 .spot-weather {
   margin-bottom: 15px;
