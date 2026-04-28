@@ -24,14 +24,26 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
   // Get API URL - handle case where window.App might not be defined yet
-const getApiUrl = () => {
-  if (window.App && window.App.API_URL) {
-    return window.App.API_URL;
-  }
-  return window.location.origin + '/api';
-};
-
-// Login form submission
+  const getApiUrl = () => {
+    if (window.App && window.App.API_URL) {
+      return window.App.API_URL;
+    }
+    return window.location.origin + '/api';
+  };
+  
+  // Show error message
+  const showError = (message) => {
+    if (authError) {
+      authError.textContent = message;
+      authError.classList.add('show');
+      setTimeout(() => {
+        authError.classList.remove('show');
+      }, 5000);
+    }
+  };
+  
+  // Login form submission
+  if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -110,17 +122,6 @@ const getApiUrl = () => {
         showError('Network error. Please try again.');
       }
     });
-  }
-  
-  // Show error message
-  function showError(message) {
-    if (authError) {
-      authError.textContent = message;
-      authError.classList.add('show');
-      setTimeout(() => {
-        authError.classList.remove('show');
-      }, 5000);
-    }
   }
   
   // Check if already logged in

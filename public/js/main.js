@@ -98,11 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export functions for use in other scripts
 window.App = {
+  ...window.App,
   isLoggedIn,
   getToken,
   getUser,
   logout,
   formatDate,
   formatRelativeTime,
-  API_URL: window.App.API_URL
+  API_URL: window.App?.API_URL || window.location.origin + '/api'
 };
