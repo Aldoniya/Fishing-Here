@@ -90,27 +90,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('spotAccess').textContent = selectedSpot.accessibility || 'Boat';
     document.getElementById('spotSafety').textContent = selectedSpot.safety_level || 'Good';
     
-    // Update coordinates
-    document.getElementById('spotLat').textContent = selectedSpot.latitude.toFixed(6);
-    document.getElementById('spotLng').textContent = selectedSpot.longitude.toFixed(6);
-    
-    // Calculate distance and ETA if user location is available
-    const routeInfoEl = document.getElementById('spotRouteInfo');
-    if (userLocation) {
-      const distance = calculateDistance(
-        userLocation[0], userLocation[1],
-        selectedSpot.latitude, selectedSpot.longitude
-      );
-      const etaMinutes = Math.round(distance / 40 * 60); // Assume 40 km/h
-      
-      document.getElementById('spotDistance').textContent = `${distance.toFixed(1)} km`;
-      document.getElementById('spotETA').textContent = etaMinutes < 60 
-        ? `${etaMinutes} min` 
-        : `${Math.floor(etaMinutes / 60)}h ${etaMinutes % 60}m`;
-      routeInfoEl.style.display = 'block';
-    } else {
-      routeInfoEl.style.display = 'none';
-    }
+    // Update fishing conditions
+    const fishingCondition = getFishingCondition(selectedSpot);
+    document.getElementById('spotFishingCondition').textContent = fishingCondition;
     
     document.getElementById('selectedSpot').style.display = 'block';
     
@@ -173,6 +155,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('routeDistance').textContent = `${distance.toFixed(1)} km`;
     document.getElementById('routeTime').textContent = `${time} min`;
     
+    // Display coordinates
+    document.getElementById('routeLat').textContent = end[0].toFixed(6);
+    document.getElementById('routeLng').textContent = end[1].toFixed(6);
+    
     // Generate route steps
     const steps = [
       { icon: 'fa-play', text: 'Start from your location' },
@@ -210,6 +196,41 @@ document.addEventListener('DOMContentLoaded', async () => {
               Math.sin(dLng/2) * Math.sin(dLng/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c;
+  }
+  
+  // Get fishing condition based on spot details
+  function getFishingCondition(spot) {
+    const season = spot.best_season?.toLowerCase() || '';
+    const safety = spot.safety_level?.toLowerCase() || 'good';
+    const depth = spot.depth || 0;
+    
+    let condition = 'Good';
+    let details = [];
+    
+    // Check season
+    if (season.includes('year-round') || season.includes('all')) {
+      details.push('Year-round fishing');
+    } else if (season) {
+      details.push(`Best: ${spot.best_season}`);
+    }
+    
+    // Check safety
+    if (safety.includes('excellent') || safety.includes('good')) {
+      details.push('Safe waters');
+    } else if (safety.includes('moderate')) {
+      details.push('Moderate conditions');
+    }
+    
+    // Check depth for fishing type
+    if (depth < 20) {
+      details.push('Shallow water - ideal for beginners');
+    } else if (depth < 50) {
+      details.push('Medium depth - various fish species');
+    } else {
+      details.push('Deep water - experienced anglers');
+    }
+    
+    return details.length > 0 ? `Best Fishing: ${details.join(', ')}` : 'Best Fishing: Year-round';
   }
   
   // Close route panel

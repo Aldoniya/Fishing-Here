@@ -1,5 +1,239 @@
 /* filepath: public/css/weather.css */
 
+/* Weather Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes wave {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes sun-rays {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes cloud-move {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes rain-drop {
+  0% { transform: translateY(-20px); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(20px); opacity: 0; }
+}
+
+/* Animated Weather Icons */
+.weather-animated {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.weather-animated i {
+  font-size: 48px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.weather-animated .sun-rays {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,193,7,0.3) 0%, transparent 70%);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.weather-animated .cloud-layer {
+  position: absolute;
+  animation: cloud-move 20s linear infinite;
+}
+
+.weather-animated .rain-drops {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.weather-animated .rain-drop {
+  position: absolute;
+  width: 2px;
+  height: 10px;
+  background: linear-gradient(to bottom, transparent, #64b5f6);
+  animation: rain-drop 1s linear infinite;
+}
+
+/* Current Weather Animation */
+.current-temp .temp-value {
+  font-size: 72px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.current-condition i {
+  font-size: 64px;
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Forecast Card Animations */
+.forecast-card {
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.forecast-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0,119,182,0.05) 0%, transparent 100%);
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.forecast-card:hover::before {
+  opacity: 1;
+}
+
+.forecast-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.forecast-card .icon i {
+  font-size: 32px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.forecast-card.today {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--white);
+}
+
+.forecast-card.today .icon i,
+.forecast-card.today .temp-high,
+.forecast-card.today .temp-low,
+.forecast-card.today .condition {
+  color: var(--white);
+}
+
+/* Fishing Status Indicators */
+.fishing-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.fishing-status.good {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.fishing-status.moderate {
+  background: rgba(255, 152, 0, 0.15);
+  color: #ff9800;
+}
+
+.fishing-status.poor {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+}
+
+.fishing-status i {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Hourly Forecast Animation */
+.hourly-item {
+  text-align: center;
+  padding: 15px;
+  transition: var(--transition);
+}
+
+.hourly-item:hover {
+  background: rgba(0, 119, 182, 0.05);
+  border-radius: var(--radius-sm);
+}
+
+.hourly-item .icon i {
+  font-size: 24px;
+  animation: float 2s ease-in-out infinite;
+}
+
+/* Spot Weather Cards */
+.spot-weather-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: var(--transition);
+}
+
+.spot-weather-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.spot-weather-card .spot-temp {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.spot-weather-card .spot-condition {
+  font-size: 14px;
+  color: var(--gray);
+  margin: 5px 0;
+}
+
+.spot-weather-card .spot-details {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  color: var(--gray);
+  margin-top: 10px;
+}
+
+.spot-weather-card .spot-details span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.spot-weather-card .spot-details i {
+  color: var(--primary);
+}
+
 /* Weather Main Layout */
 .weather-main {
   background: #f5f7fa;
@@ -445,277 +679,6 @@
 
   .marine-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Weather Animation Background */
-.weather-animation-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
-  overflow: hidden;
-  background: linear-gradient(180deg, #87CEEB 0%, #E0F7FA 100%);
-}
-
-.weather-animation-bg.sunny {
-  background: linear-gradient(180deg, #87CEEB 0%, #FFD700 100%);
-}
-
-.weather-animation-bg.cloudy {
-  background: linear-gradient(180deg, #B0C4DE 0%, #D3D3D3 100%);
-}
-
-.weather-animation-bg.rainy {
-  background: linear-gradient(180deg, #4A6572 0%, #2C3E50 100%);
-}
-
-.weather-particles {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.weather-sun {
-  position: absolute;
-  top: -50px;
-  right: -50px;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, #FFD700 0%, transparent 70%);
-  border-radius: 50%;
-  animation: sunPulse 4s ease-in-out infinite;
-}
-
-@keyframes sunPulse {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.1); opacity: 1; }
-}
-
-.weather-clouds {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.weather-clouds::before,
-.weather-clouds::after {
-  content: '';
-  position: absolute;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  animation: cloudFloat 20s linear infinite;
-}
-
-.weather-clouds::before {
-  width: 120px;
-  height: 40px;
-  top: 20%;
-  left: 10%;
-}
-
-.weather-clouds::after {
-  width: 80px;
-  height: 30px;
-  top: 30%;
-  left: 60%;
-  animation-duration: 25s;
-}
-
-@keyframes cloudFloat {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100vw); }
-}
-
-.weather-rain {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(
-    180deg,
-    transparent,
-    transparent 20px,
-    rgba(100, 149, 237, 0.3) 20px,
-    rgba(100, 149, 237, 0.3) 22px
-  );
-  animation: rainFall 0.5s linear infinite;
-}
-
-@keyframes rainFall {
-  0% { background-position: 0 0; }
-  100% { background-position: 0 100px; }
-}
-
-/* Animated Weather Icon */
-.weather-icon-animated {
-  font-size: 48px;
-  animation: iconBounce 2s ease-in-out infinite;
-}
-
-.weather-icon-animated i {
-  display: block;
-}
-
-@keyframes iconBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.weather-icon-animated .fa-sun {
-  color: #FFD700;
-  animation: sunRotate 10s linear infinite;
-}
-
-@keyframes sunRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.weather-icon-animated .fa-moon {
-  color: #F4F6F0;
-  animation: moonGlow 3s ease-in-out infinite;
-}
-
-@keyframes moonGlow {
-  0%, 100% { filter: drop-shadow(0 0 5px #F4F6F0); }
-  50% { filter: drop-shadow(0 0 15px #F4F6F0); }
-}
-
-.weather-icon-animated .fa-cloud {
-  color: #B0C4DE;
-}
-
-.weather-icon-animated .fa-cloud-rain,
-.weather-icon-animated .fa-cloud-showers-heavy {
-  color: #4A6572;
-  animation: rainShake 0.5s ease-in-out infinite;
-}
-
-@keyframes rainShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-2px); }
-  75% { transform: translateX(2px); }
-}
-
-/* Best Fishing Times Card */
-.best-fishing-card {
-  background: var(--white);
-  border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  margin-top: 20px;
-}
-
-.best-fishing-card h3 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 18px;
-  color: var(--dark);
-  margin-bottom: 20px;
-}
-
-.best-fishing-card h3 i {
-  color: var(--primary);
-}
-
-.fishing-times-container {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.fishing-time-slot {
-  flex: 1;
-  min-width: 150px;
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-  border-radius: var(--radius);
-  padding: 16px;
-  text-align: center;
-  border: 2px solid transparent;
-  transition: var(--transition);
-}
-
-.fishing-time-slot:hover {
-  border-color: var(--primary);
-  transform: translateY(-3px);
-}
-
-.fishing-time-slot.best {
-  background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
-  border-color: #4caf50;
-}
-
-.fishing-time-slot .time-range {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--dark);
-  margin-bottom: 8px;
-}
-
-.fishing-time-slot .time-rating {
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  margin-bottom: 8px;
-}
-
-.fishing-time-slot .time-rating i {
-  font-size: 12px;
-  color: #ddd;
-}
-
-.fishing-time-slot .time-rating i.filled {
-  color: #FFD700;
-}
-
-.fishing-time-slot .time-desc {
-  font-size: 12px;
-  color: var(--gray);
-}
-
-.solunar-data {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
-}
-
-.solunar-item {
-  text-align: center;
-}
-
-.solunar-label {
-  display: block;
-  font-size: 12px;
-  color: var(--gray);
-  margin-bottom: 6px;
-}
-
-.solunar-value {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--dark);
-}
-
-/* Responsive for fishing times */
-@media (max-width: 768px) {
-  .fishing-times-container {
-    flex-direction: column;
-  }
-  
-  .fishing-time-slot {
-    min-width: 100%;
-  }
-  
-  .solunar-data {
-    grid-template-columns: 1fr;
   }
 }
 
