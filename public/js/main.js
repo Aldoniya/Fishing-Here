@@ -24,6 +24,7 @@ const getUser = () => {
 const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  // Force redirect to login page
   window.location.href = '/login';
 };
 
