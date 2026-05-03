@@ -123,14 +123,5 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-  
-  // Check if already logged in
-  if (window.App && window.App.isLoggedIn && window.App.isLoggedIn()) {
-    const user = window.App && window.App.getUser ? window.App.getUser() : null;
-    if (user?.role === 'admin') {
-      window.location.href = '/admin';
-    } else {
-      window.location.href = '/dashboard';
-    }
-  }
+
 });
