@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   // Initialize map
-  const map = L.map('map').setView([-6.1659, 39.1989], 11);
+  const map = L.map('map', { zoomControl: false }).setView([-6.1659, 39.1989], 11);
   
   // Add OpenStreetMap tile layer
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -183,6 +183,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       opacity: 0.8
     }).addTo(map);
     
+    // Add animation to route panel
+    routePanel.style.opacity = '0';
+    routePanel.style.display = 'block';
+    setTimeout(() => {
+      routePanel.style.transition = 'opacity 0.3s ease-in-out';
+      routePanel.style.opacity = '1';
+    }, 10);
+
     map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
   }
   
@@ -253,7 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Find nearby spots
   document.getElementById('findNearby').addEventListener('click', () => {
-    if (navigator.geolocation) {
+    if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           userLocation = [position.coords.latitude, position.coords.longitude];
@@ -273,15 +281,17 @@ document.addEventListener('DOMContentLoaded', async () => {
           map.flyTo(userLocation, 12);
           
           // Find nearby spots
-          const nearby = spots
-            .map(spot => ({
-              ...spot,
-              distance: calculateDistance(userLocation[0], userLocation[1], spot.latitude, spot.longitude)
-            }))
-            .sort((a, b) => a.distance - b.distance)
-            .slice(0, 5);
-          
-          alert(`Found ${nearby.length} fishing spots within 50km`);
+          const nearby = spots.filter(spot => {
+            const d = calculateDistance(userLocation[0], userLocation[1], spot.latitude, spot.longitude);
+            return d <= 50; // 50km radius
+          });
+
+          if (nearby.length > 0) {
+            selectSpot(nearby[0].id);
+            alert(`Found ${nearby.length} spots near you. Showing the closest one.`);
+          } else {
+            alert('No fishing spots found within 50km of your location.');
+          }
         },
         (error) => {
           alert('Unable to get your location. Please enable location services.');

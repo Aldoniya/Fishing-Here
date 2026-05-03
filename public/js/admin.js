@@ -31,7 +31,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   
   // Logout
-  document.getElementById('adminLogout').addEventListener('click', () => {
+  document.getElementById('adminLogout').addEventListener('click', (e) => {
+    e.preventDefault();
     window.App.logout();
   });
   

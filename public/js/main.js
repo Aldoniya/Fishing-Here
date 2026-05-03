@@ -22,10 +22,10 @@ const getUser = () => {
 
 // Logout function
 const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  // Force redirect to login page
-  window.location.href = '/login';
+  localStorage.clear();
+  sessionStorage.clear();
+  // Use replace to prevent back-button re-entry
+  window.location.replace('/login');
 };
 
 // Format date

@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const forecastGrid = document.getElementById('forecastGrid');
     
     forecastGrid.innerHTML = forecast.map((day, index) => `
-      <div class="forecast-card ${index === 0 ? 'today' : ''}">
+      <div class="forecast-card ${index === 0 ? 'today' : ''}" style="animation: fadeInUp 0.5s ease forwards ${index * 0.1}s; opacity: 0;">
         <div class="day">${index === 0 ? 'Today' : day.day}</div>
         <div class="icon">
           <i class="fas fa-${getWeatherIcon(day.conditions)}"></i>
