@@ -52,7 +52,8 @@ router.post('/login', (req, res) => {
       return res.status(400).json({ error: 'Email and password required' });
     }
 
-    db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
+    // Check for either email OR username
+    db.get('SELECT * FROM users WHERE email = ? OR username = ?', [email, email], async (err, user) => {
       if (err) return res.status(500).json({ error: 'Database error' });
       if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
