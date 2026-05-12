@@ -46,14 +46,14 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { identifier, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password required' });
+    if (!identifier || !password) {
+      return res.status(400).json({ error: 'Email/username and password required' });
     }
 
     // Check for either email OR username
-    db.get('SELECT * FROM users WHERE email = ? OR username = ?', [email, email], async (err, user) => {
+    db.get('SELECT * FROM users WHERE email = ? OR username = ?', [identifier, identifier], async (err, user) => {
       if (err) return res.status(500).json({ error: 'Database error' });
       if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 

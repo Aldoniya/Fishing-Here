@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      const email = document.getElementById('email').value;
+      const identifier = document.getElementById('identifier').value.trim();
       const password = document.getElementById('password').value;
       
       try {
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ identifier, password })
         });
         
         const data = await response.json();
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('user', JSON.stringify(data.user));
           
           // Redirect based on role
-          if (data.user.role === 'admin') {
+          if (data.user && data.user.role === 'admin') {
             window.location.href = '/admin';
           } else {
             window.location.href = '/dashboard';
