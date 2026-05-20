@@ -52,33 +52,57 @@ router.post('/login', (req, res) => {
       return res.status(400).json({ error: 'Email/username and password required' });
     }
 
+    console.log('🔑 Login attempt:', identifier);
+
     // Check for either email OR username
     db.get('SELECT * FROM users WHERE email = ? OR username = ?', [identifier, identifier], async (err, user) => {
-      if (err) return res.status(500).json({ error: 'Database error' });
-      if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+      if (err) {
+        console.error('DB Error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      if (!user) {
+        console.log('❌ User not found:', identifier);
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
 
-      const validPassword = await bcrypt.compare(password, user.password);
-      if (!validPassword) return res.status(401).json({ error: 'Invalid credentials' });
+      console.log('✅ User found:', user.username, 'Password hash exists:', !!user.password);
 
-      // Update last login
-      db.run('UPDATE users SET last_login = ? WHERE id = ?', [new Date().toISOString(), user.id]);
+      try {
+        const validPassword = await bcrypt.compare(password, user.password);
+        console.log('🔐 Password valid:', validPassword);
+        
+        if (!validPassword) {
+          console.log('❌ Password mismatch for:', user.username);
+          return res.status(401).json({ error: 'Invalid credentials' });
+        }
 
-      // Log activity
-      logActivity(user.id, 'login', 'User logged in', req.ip);
+        // Update last login
+        db.run('UPDATE users SET last_login = ? WHERE id = ?', [new Date().toISOString(), user.id]);
 
-      const token = generateToken(user);
-      res.json({ 
-        message: 'Login successful', 
-        token, 
-        user: { 
-          id: user.id, 
-          username: user.username, 
-          email: user.email, 
-          role: user.role 
-        } 
-      });
+        // Log activity
+        logActivity(user.id, 'login', 'User logged in', req.ip);
+
+        const token = generateToken(user);
+        console.log('✅ Login successful:', user.username);
+        
+        res.json({ 
+          message: 'Login successful', 
+          token, 
+          user: { 
+            id: user.id, 
+            username: user.username, 
+            email: user.email, 
+            role: user.role 
+          } 
+        });
+      } catch (compareErr) {
+        console.error('🔐 Bcrypt comparison error:', compareErr);
+        res.status(500).json({ error: 'Server error during authentication' });
+      }
     });
   } catch (error) {
+    console.error('🚨 Login error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
