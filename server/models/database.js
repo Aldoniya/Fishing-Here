@@ -13,24 +13,31 @@ const seedDemoUsers = (callback) => {
     { username: 'user', email: 'user@zanzibar.com', password: 'user123', role: 'user' }
   ];
   
-  let created = 0;
+  let processed = 0;
   users.forEach((user) => {
-    db.get('SELECT id FROM users WHERE email = ?', [user.email], (err, existing) => {
+    db.get('SELECT id FROM users WHERE email = ?', [user.email], async (err, existing) => {
       if (!existing) {
-        bcrypt.hash(user.password, 10, (err, hashed) => {
+        try {
+          const hashed = await bcrypt.hash(user.password, 10);
           db.run(
             'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
             [user.username, user.email, hashed, user.role],
             (err) => {
               if (!err) console.log(`✅ Created demo ${user.role}: ${user.email}`);
-              created++;
-              if (created === users.length && callback) callback();
+              else console.error(`❌ Error creating ${user.role}: ${err}`);
+              processed++;
+              if (processed === users.length && callback) callback();
             }
           );
-        });
+        } catch (err) {
+          console.error(`❌ Error hashing password for ${user.email}: ${err}`);
+          processed++;
+          if (processed === users.length && callback) callback();
+        }
       } else {
-        created++;
-        if (created === users.length && callback) callback();
+        console.log(`ℹ️  Demo ${user.role} already exists: ${user.email}`);
+        processed++;
+        if (processed === users.length && callback) callback();
       }
     });
   });
