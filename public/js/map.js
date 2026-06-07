@@ -42,6 +42,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span><i class="fas fa-ruler-vertical"></i> ${spot.depth || '-'}m</span>
           <span><i class="fas fa-shield-alt"></i> ${spot.safety_level || 'Good'}</span>
         </div>
+        <div class="spot-info spot-metrics">
+          <span><i class="fas fa-temperature-high"></i> ${spot.sea_surface_temp || '-'}°C</span>
+          <span><i class="fas fa-vial"></i> ${spot.chlorophyll_a || '-'} mg/m³</span>
+          <span><i class="fas fa-star"></i> ${spot.fishing_score || '-'} / 100</span>
+        </div>
       </div>
     `).join('');
     
@@ -68,6 +73,13 @@ document.addEventListener('DOMContentLoaded', async () => {
               <span><i class="fas fa-calendar"></i> ${spot.best_season || 'Year-round'}</span>
               <span><i class="fas fa-ruler-vertical"></i> ${spot.depth || '-'}m</span>
             </div>
+            <div class="popup-meta">
+              <span><i class="fas fa-temperature-high"></i> ${spot.sea_surface_temp || '-'}°C</span>
+              <span><i class="fas fa-vial"></i> ${spot.chlorophyll_a || '-'} mg/m³</span>
+            </div>
+            <div class="popup-meta">
+              <span><i class="fas fa-star"></i> Score ${spot.fishing_score || '-'}/100</span>
+            </div>
           </div>
         `);
       
@@ -89,6 +101,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('spotDepth').textContent = selectedSpot.depth ? `${selectedSpot.depth}m` : 'N/A';
     document.getElementById('spotAccess').textContent = selectedSpot.accessibility || 'Boat';
     document.getElementById('spotSafety').textContent = selectedSpot.safety_level || 'Good';
+    document.getElementById('spotTemp').textContent = selectedSpot.sea_surface_temp ? `${selectedSpot.sea_surface_temp}°C` : 'N/A';
+    document.getElementById('spotChlorophyll').textContent = selectedSpot.chlorophyll_a ? `${selectedSpot.chlorophyll_a} mg/m³` : 'N/A';
+    document.getElementById('spotScore').textContent = selectedSpot.fishing_score ? `Score ${selectedSpot.fishing_score}/100` : 'Score N/A';
     
     // Update fishing conditions
     const fishingCondition = getFishingCondition(selectedSpot);
@@ -102,16 +117,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     
     // Fetch weather for this spot
-    await loadSpotWeather(spotId);
+    await loadSpotWeather(selectedSpot);
     
     // Pan to spot
     map.flyTo([selectedSpot.latitude, selectedSpot.longitude], 13);
   }
   
   // Load spot weather
-  async function loadSpotWeather(spotId) {
+  async function loadSpotWeather(spot) {
     try {
-      const res = await fetch(`${window.App.API_URL}/weather/spot/${spotId}`);
+      const res = await fetch(`${window.App.API_URL}/weather/coords?lat=${spot.latitude}&lng=${spot.longitude}`);
       const weather = await res.json();
       
       document.getElementById('spotWeather').innerHTML = `
@@ -126,6 +141,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="weather-mini-item">
           <i class="fas fa-water"></i>
           <span>${weather.wave_height?.toFixed(1)}m</span>
+        </div>
+        <div class="weather-mini-item">
+          <i class="fas fa-water"></i>
+          <span>${weather.conditions || 'Clear'}</span>
         </div>
       `;
     } catch (error) {
@@ -150,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Calculate distance (simple approximation)
     const distance = calculateDistance(start[0], start[1], end[0], end[1]);
-    const time = Math.round(distance / 40 * 60); // Assume 40 km/h average speed
+    const time = Math.round(distance / 30 * 60); // Assume 30 km/h average boat speed
     
     document.getElementById('routeDistance').textContent = `${distance.toFixed(1)} km`;
     document.getElementById('routeTime').textContent = `${time} min`;
@@ -158,6 +177,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Display coordinates
     document.getElementById('routeLat').textContent = end[0].toFixed(6);
     document.getElementById('routeLng').textContent = end[1].toFixed(6);
+    document.getElementById('routeSeaTemp').textContent = selectedSpot.sea_surface_temp ? `SST: ${selectedSpot.sea_surface_temp}°C` : 'SST: -';
+    document.getElementById('routeChlorophyll').textContent = selectedSpot.chlorophyll_a ? `Chl-a: ${selectedSpot.chlorophyll_a} mg/m³` : 'Chl-a: -';
+    document.getElementById('routeScore').textContent = selectedSpot.fishing_score ? `Score: ${selectedSpot.fishing_score}/100` : 'Score: -';
     
     // Generate route steps
     const steps = [
@@ -211,34 +233,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     const season = spot.best_season?.toLowerCase() || '';
     const safety = spot.safety_level?.toLowerCase() || 'good';
     const depth = spot.depth || 0;
+    const temp = spot.sea_surface_temp || 0;
+    const chlorophyll = spot.chlorophyll_a || 0;
     
-    let condition = 'Good';
     let details = [];
     
     // Check season
     if (season.includes('year-round') || season.includes('all')) {
-      details.push('Year-round fishing');
+      details.push('Year-round productive waters');
     } else if (season) {
       details.push(`Best: ${spot.best_season}`);
     }
     
     // Check safety
     if (safety.includes('excellent') || safety.includes('good')) {
-      details.push('Safe waters');
+      details.push('Safe for boats');
     } else if (safety.includes('moderate')) {
       details.push('Moderate conditions');
     }
     
     // Check depth for fishing type
     if (depth < 20) {
-      details.push('Shallow water - ideal for beginners');
+      details.push('Shallow water');
     } else if (depth < 50) {
-      details.push('Medium depth - various fish species');
+      details.push('Medium depth');
     } else {
-      details.push('Deep water - experienced anglers');
+      details.push('Deep water');
     }
     
-    return details.length > 0 ? `Best Fishing: ${details.join(', ')}` : 'Best Fishing: Year-round';
+    // Use SST and chlorophyll to refine recommendations
+    if (temp) {
+      if (temp >= 26 && temp <= 29) {
+        details.push('Good warm surface temperature');
+      } else {
+        details.push('Cooler or warmer surface water');
+      }
+    }
+    
+    if (chlorophyll) {
+      if (chlorophyll >= 0.18) {
+        details.push('High chlorophyll - strong food source');
+      } else {
+        details.push('Moderate chlorophyll levels');
+      }
+    }
+    
+    return `Best Fishing: ${details.join(', ')}`;
   }
   
   // Close route panel
@@ -280,17 +320,19 @@ document.addEventListener('DOMContentLoaded', async () => {
           
           map.flyTo(userLocation, 12);
           
-          // Find nearby spots
-          const nearby = spots.filter(spot => {
-            const d = calculateDistance(userLocation[0], userLocation[1], spot.latitude, spot.longitude);
-            return d <= 50; // 50km radius
-          });
+          // Sort spots by nearest distance and show the closest ocean point
+          const nearby = spots
+            .map(spot => ({
+              spot,
+              distance: calculateDistance(userLocation[0], userLocation[1], spot.latitude, spot.longitude)
+            }))
+            .sort((a, b) => a.distance - b.distance);
 
           if (nearby.length > 0) {
-            selectSpot(nearby[0].id);
-            alert(`Found ${nearby.length} spots near you. Showing the closest one.`);
+            selectSpot(nearby[0].spot.id);
+            alert(`Nearest ocean spot is ${nearby[0].distance.toFixed(1)} km away. Showing the best location for today.`);
           } else {
-            alert('No fishing spots found within 50km of your location.');
+            alert('No ocean fishing spots available right now.');
           }
         },
         (error) => {
@@ -378,7 +420,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load fishing spots from API
   async function loadFishingSpots() {
     try {
-      const res = await fetch(`${window.App.API_URL}/fishing/spots`);
+      const date = new Date().toISOString().split('T')[0];
+      const res = await fetch(`${window.App.API_URL}/fishing/spots/daily?date=${date}`);
       spots = await res.json();
       renderSpotsList();
       addMarkersToMap();

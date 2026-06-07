@@ -4,12 +4,100 @@ const router = express.Router();
 const { db } = require('../models/database');
 const { authenticateToken } = require('../middleware/auth');
 
+const oceanSpotTemplates = [
+  { id: 1001, name: 'Nungwi Deep Reef', description: 'Prime boat fishing off Nungwi with large pelagics.', latitude: -5.9235, longitude: 39.3570, fish_type: 'Tuna, Marlin, Mackerel', best_season: 'Nov-Mar', depth: 32, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1002, name: 'Kendwa Offshore Drop', description: 'Open ocean drop-off with strong currents and big fish.', latitude: -5.9580, longitude: 39.2945, fish_type: 'Tuna, Barracuda, Wahoo', best_season: 'Oct-Apr', depth: 28, accessibility: 'Boat', safety_level: 'Moderate' },
+  { id: 1003, name: 'Matemwe Channel', description: 'Ocean channel area with good visibility and chlorophyll concentration.', latitude: -6.0740, longitude: 39.3500, fish_type: 'Snapper, Grouper, Trevally', best_season: 'Nov-Apr', depth: 26, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1004, name: 'Pwani Mchangani Reef', description: 'Shallow reef edge in open water ideal for sport fishing.', latitude: -6.0805, longitude: 39.3358, fish_type: 'Mackerel, Sailfish', best_season: 'Dec-Mar', depth: 18, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1005, name: 'Fumba Offshore Bank', description: 'Deep bank southwest of Fumba with strong fish activity.', latitude: -6.1600, longitude: 39.1960, fish_type: 'Kingfish, Cobia, Tuna', best_season: 'Dec-May', depth: 35, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1006, name: 'Changuu Channel Spot', description: 'Clear water channel with active currents and bait schools.', latitude: -6.1450, longitude: 39.3050, fish_type: 'Barracuda, Tuna, Sailfish', best_season: 'Nov-Apr', depth: 22, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1007, name: 'Nungwi Outer Edge', description: 'Outer reef edge with deep water and great trolling potential.', latitude: -5.9100, longitude: 39.3190, fish_type: 'Marlin, Wahoo, Trevally', best_season: 'Dec-Mar', depth: 40, accessibility: 'Boat', safety_level: 'Moderate' },
+  { id: 1008, name: 'Kendwa Mid-Channel', description: 'Open channel between Kendwa and Mnemba with warm surface water.', latitude: -5.9400, longitude: 39.3200, fish_type: 'Dorado, Tuna, Shark', best_season: 'Nov-Mar', depth: 30, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1009, name: 'Matemwe Ocean Ridge', description: 'Submarine ridge with excellent fish holding structure.', latitude: -6.0670, longitude: 39.3630, fish_type: 'Grouper, Snapper, Amberjack', best_season: 'Dec-Apr', depth: 29, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1010, name: 'Paje Sea Lane', description: 'South coast sea lane with steady trade winds and currents.', latitude: -6.2380, longitude: 39.2750, fish_type: 'Kingfish, Mahi Mahi', best_season: 'Jun-Sep', depth: 24, accessibility: 'Boat', safety_level: 'Moderate' },
+  { id: 1011, name: 'Fumba Deep Pocket', description: 'Deep pocket near Fumba with high chlorophyll and good fish presence.', latitude: -6.1505, longitude: 39.1800, fish_type: 'Cobia, Tuna, Trevally', best_season: 'Dec-May', depth: 34, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1012, name: 'Chole Bay Offshore', description: 'Bay entrance spot with healthy plankton bloom and pelagic fish.', latitude: -6.2500, longitude: 39.3250, fish_type: 'Sailfish, Tuna, Wahoo', best_season: 'Nov-Apr', depth: 20, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1013, name: 'Kiwengwa Ocean Track', description: 'Wide open water track with stable surface temperatures.', latitude: -5.9420, longitude: 39.3400, fish_type: 'Tuna, Dorado, Kingfish', best_season: 'Nov-Mar', depth: 27, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1014, name: 'Dongwe Offshore Patch', description: 'Offshore patch with moderate currents and deep clear water.', latitude: -6.1730, longitude: 39.3130, fish_type: 'Barracuda, Tuna', best_season: 'Dec-Apr', depth: 32, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1015, name: 'Paje Reef Margin', description: 'Reef margin with strong chlorophyll signature and schooling fish.', latitude: -6.2550, longitude: 39.2850, fish_type: 'Mackerel, Tuna', best_season: 'Jun-Sep', depth: 22, accessibility: 'Boat', safety_level: 'Moderate' },
+  { id: 1016, name: 'Mnemba Channel Edge', description: 'Channel edge with warm water and active pelagic movement.', latitude: -5.7850, longitude: 39.2700, fish_type: 'Marlin, Tuna, Sailfish', best_season: 'Nov-Mar', depth: 36, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1017, name: 'Kendwa Offshore Canyon', description: 'Submarine canyon environment with high bait concentration.', latitude: -5.9300, longitude: 39.2800, fish_type: 'Amberjack, Tuna', best_season: 'Nov-Mar', depth: 38, accessibility: 'Boat', safety_level: 'Moderate' },
+  { id: 1018, name: 'Zanbest Deep Point', description: 'Deep point south of Zanzibar island with excellent fish score.', latitude: -6.2300, longitude: 39.3100, fish_type: 'Cobia, Grouper, Tuna', best_season: 'Dec-Apr', depth: 33, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1019, name: 'Nungwi Sunrise Spot', description: 'Morning best spot with warm surface layer and active fish.', latitude: -5.9150, longitude: 39.3600, fish_type: 'Mahi Mahi, Tuna', best_season: 'Nov-Mar', depth: 31, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1020, name: 'Kendwa South Channel', description: 'South channel near Kendwa ideal for drift fishing.', latitude: -5.9600, longitude: 39.3050, fish_type: 'Barracuda, Wahoo', best_season: 'Oct-Apr', depth: 29, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1021, name: 'Fumba Bay Entrance', description: 'Bay entrance with a mix of coastal and ocean water nutrients.', latitude: -6.1700, longitude: 39.1900, fish_type: 'Tuna, Cobia', best_season: 'Dec-May', depth: 23, accessibility: 'Boat', safety_level: 'Moderate' },
+  { id: 1022, name: 'Ocean West Point', description: 'Western deep-water pocket with strong fishing potential.', latitude: -6.1400, longitude: 39.1700, fish_type: 'Kingfish, Trevally', best_season: 'Dec-Apr', depth: 30, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1023, name: 'Changuu Outer Buoy', description: 'Outer buoy area with good temperature and chlorophyll mix.', latitude: -6.1550, longitude: 39.3200, fish_type: 'Grouper, Tuna', best_season: 'Nov-Apr', depth: 25, accessibility: 'Boat', safety_level: 'Good' },
+  { id: 1024, name: 'South Reef Line', description: 'Long reef line to the south with stable surface water and strong catches.', latitude: -6.2050, longitude: 39.2950, fish_type: 'Snapper, Kingfish', best_season: 'Jul-Oct', depth: 26, accessibility: 'Boat', safety_level: 'Moderate' }
+];
+
+const getDailyOceanMetrics = (date, index) => {
+  const day = date.getUTCDate();
+  const temp = 25 + Math.sin((day + index) / 3) * 1.8 + ((index % 4) - 2) * 0.15;
+  const chlorophyll = 0.14 + Math.cos((day + index) / 4) * 0.06 + ((index % 3) * 0.01);
+  return {
+    sea_surface_temp: parseFloat(temp.toFixed(1)),
+    chlorophyll_a: parseFloat(Math.max(0.08, chlorophyll).toFixed(3))
+  };
+};
+
+const calculateFishingScore = (spot, temp, chlorophyll) => {
+  let score = 50;
+  score += Math.max(0, 14 - Math.abs(temp - 27) * 2);
+  score += Math.min(20, chlorophyll * 120);
+  score += spot.depth > 30 ? 8 : 4;
+  score += spot.safety_level === 'Excellent' ? 6 : spot.safety_level === 'Good' ? 4 : 2;
+  score += spot.best_season.toLowerCase().includes('year-round') ? 5 : 0;
+  return Math.min(100, Math.round(score));
+};
+
+const generateDailyOceanSpots = (date, latitude, longitude, count = 24) => {
+  const useDistance = typeof latitude === 'number' && typeof longitude === 'number';
+  return oceanSpotTemplates
+    .map((spot, idx) => {
+      const metrics = getDailyOceanMetrics(date, idx);
+      const distance = useDistance
+        ? calculateDistance(latitude, longitude, spot.latitude, spot.longitude)
+        : null;
+      return {
+        ...spot,
+        ...metrics,
+        fishing_score: calculateFishingScore(spot, metrics.sea_surface_temp, metrics.chlorophyll_a),
+        distance: distance !== null ? parseFloat(distance.toFixed(1)) : null
+      };
+    })
+    .sort((a, b) => {
+      if (useDistance && a.distance !== null && b.distance !== null) {
+        return a.distance - b.distance;
+      }
+      return b.fishing_score - a.fishing_score;
+    })
+    .slice(0, count);
+};
+
 // Get all fishing spots
 router.get('/spots', (req, res) => {
   db.all('SELECT * FROM fishing_spots ORDER BY name', (err, spots) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(spots);
   });
+});
+
+// Get daily ocean fishing spots with sea surface temperature and chlorophyll data
+router.get('/spots/daily', (req, res) => {
+  const dateString = req.query.date || new Date().toISOString().split('T')[0];
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) {
+    return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD.' });
+  }
+
+  const lat = parseFloat(req.query.lat);
+  const lng = parseFloat(req.query.lng);
+  const latitude = Number.isNaN(lat) ? undefined : lat;
+  const longitude = Number.isNaN(lng) ? undefined : lng;
+
+  const spots = generateDailyOceanSpots(date, latitude, longitude, 28);
+  res.json(spots);
 });
 
 // Get fishing spot by ID
