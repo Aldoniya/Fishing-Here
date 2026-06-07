@@ -46,16 +46,18 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', (req, res) => {
   try {
-    const { identifier, password } = req.body;
+    const identifier = (req.body.identifier || '').trim();
+    const password = req.body.password || '';
 
     if (!identifier || !password) {
       return res.status(400).json({ error: 'Email/username and password required' });
     }
 
+    const normalizedIdentifier = identifier.toLowerCase();
     console.log('🔑 Login attempt:', identifier);
 
-    // Check for either email OR username
-    db.get('SELECT * FROM users WHERE email = ? OR username = ?', [identifier, identifier], async (err, user) => {
+    // Check for either email OR username, case-insensitively
+    db.get('SELECT * FROM users WHERE LOWER(email) = ? OR LOWER(username) = ?', [normalizedIdentifier, normalizedIdentifier], async (err, user) => {
       if (err) {
         console.error('DB Error:', err);
         return res.status(500).json({ error: 'Database error' });

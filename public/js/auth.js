@@ -67,9 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
           
           // Redirect based on role
           if (data.user && data.user.role === 'admin') {
-            window.location.href = '/admin';
+            window.location.href = '/admin.html';
           } else {
-            window.location.href = '/dashboard';
+            window.location.href = '/dashboard.html';
           }
         } else {
           showError(data.error || 'Login failed');
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response.ok) {
           localStorage.setItem('token', data.token);
           localStorage.setItem('user', JSON.stringify(data.user));
-          window.location.href = '/dashboard';
+          window.location.href = '/dashboard.html';
         } else {
           showError(data.error || 'Registration failed');
         }
