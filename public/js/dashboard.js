@@ -82,6 +82,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // View routes
   document.getElementById('viewRoutesBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
+    localStorage.setItem('dashboardRouteRequest', 'best-ocean-route');
+    window.location.href = '/map';
+  });
+  
+  // My Routes in sidebar
+  document.getElementById('myRoutes')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    localStorage.setItem('dashboardRouteRequest', 'best-ocean-route');
     window.location.href = '/map';
   });
   
@@ -127,16 +135,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         `).join('');
       }
       
-      // Fetch fishing spots
+      // Fetch fishing spots and keep ocean-only boat access points
       const spotsRes = await fetch(`${window.App.API_URL}/fishing/spots/daily`);
       const spots = await spotsRes.json();
+      const oceanSpots = spots.filter(spot => spot.accessibility?.toLowerCase().includes('boat'));
       
-      document.getElementById('totalSpots').textContent = spots.length;
+      document.getElementById('totalSpots').textContent = oceanSpots.length;
       
-      // Display popular spots
+      // Display popular ocean fishing spots
       const spotsGrid = document.getElementById('spotsGrid');
       if (spotsGrid) {
-        spotsGrid.innerHTML = spots.slice(0, 4).map(spot => `
+        spotsGrid.innerHTML = oceanSpots.slice(0, 4).map(spot => `
           <div class="spot-card">
             <h4>${spot.name}</h4>
             <p>${spot.fish_type || 'Various fish'}</p>

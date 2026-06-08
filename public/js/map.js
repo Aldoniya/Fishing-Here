@@ -10,10 +10,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize map
   const map = L.map('map', { zoomControl: false }).setView([-6.1659, 39.1989], 11);
   
-  // Add OpenStreetMap tile layer
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+  const baseLayers = {
+    openstreet: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }),
+    topographic: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)'
+    }),
+    ocean: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Esri Ocean Basemap'
+    }),
+    satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Esri World Imagery'
+    })
+  };
+  
+  let currentBaseLayerKey = 'openstreet';
+  let currentBaseLayer = baseLayers[currentBaseLayerKey];
+  currentBaseLayer.addTo(map);
   
   // Custom fishing marker icon
   const fishingIcon = L.divIcon({
@@ -140,16 +154,69 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!dataLayerActive) {
       chlorophyllLayer.addTo(map);
       dataLayerActive = 'chlorophyll';
-      document.getElementById('toggleLayer').title = 'Toggle SST layer';
+      document.getElementById('toggleLayer').title = 'Show SST overlay';
     } else if (dataLayerActive === 'chlorophyll') {
       map.removeLayer(chlorophyllLayer);
       sstLayer.addTo(map);
       dataLayerActive = 'sst';
-      document.getElementById('toggleLayer').title = 'Toggle chlorophyll layer';
+      document.getElementById('toggleLayer').title = 'Show chlorophyll overlay';
     } else {
       map.removeLayer(sstLayer);
       dataLayerActive = null;
-      document.getElementById('toggleLayer').title = 'Toggle ocean data layers';
+      document.getElementById('toggleLayer').title = 'Show ocean data overlay';
+    }
+  }
+
+  function cycleBaseLayer() {
+    const keys = ['openstreet', 'topographic', 'ocean', 'satellite'];
+    const currentIndex = keys.indexOf(currentBaseLayerKey);
+    const nextKey = keys[(currentIndex + 1) % keys.length];
+    map.removeLayer(currentBaseLayer);
+    currentBaseLayerKey = nextKey;
+    currentBaseLayer = baseLayers[currentBaseLayerKey];
+    currentBaseLayer.addTo(map);
+    document.getElementById('toggleBaseLayer').title = `Base map: ${currentBaseLayerKey}`;
+  }
+
+  function updateRouteFromDashboard() {
+    const routeRequest = localStorage.getItem('dashboardRouteRequest');
+    if (!routeRequest) return;
+    localStorage.removeItem('dashboardRouteRequest');
+
+    if (routeRequest === 'best-ocean-route') {
+      if (!('geolocation' in navigator)) {
+        alert('Location is required to display your route.');
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          userLocation = [position.coords.latitude, position.coords.longitude];
+          const userIcon = L.divIcon({
+            className: 'user-location-marker',
+            html: '<i class="fas fa-user"></i>',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+          });
+
+          L.marker(userLocation, { icon: userIcon })
+            .addTo(map)
+            .bindPopup('You are here');
+
+          const oceanSpots = spots.filter(spot => spot.accessibility?.toLowerCase().includes('boat'));
+          const bestSpot = oceanSpots.sort((a, b) => b.fishing_score - a.fishing_score)[0];
+          if (!bestSpot) {
+            alert('No ocean fishing spots available.');
+            return;
+          }
+
+          selectSpot(bestSpot.id);
+          calculateRoute(userLocation, [bestSpot.latitude, bestSpot.longitude]);
+        },
+        () => {
+          alert('Cannot get your location. Please allow location access to view the route.');
+        }
+      );
     }
   }
   
@@ -425,6 +492,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   
   document.getElementById('toggleLayer').addEventListener('click', toggleDataLayer);
+  document.getElementById('toggleBaseLayer')?.addEventListener('click', cycleBaseLayer);
   
   // Search spots
   document.getElementById('spotSearch').addEventListener('input', (e) => {
@@ -493,6 +561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       addMarkersToMap();
       setupSatelliteDataLayers();
       renderZoneList();
+      updateRouteFromDashboard();
     } catch (error) {
       console.error('Error loading spots:', error);
     }
