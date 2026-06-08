@@ -88,8 +88,47 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load dashboard data function
   async function loadDashboardData() {
     try {
+      // Fetch ocean convergence zones
+      const zonesRes = await fetch(`${window.App.API_URL}/fishing/zones`);
+      const zones = await zonesRes.json();
+      
+      // Display convergence zones with fish recommendations
+      const zonesContainer = document.getElementById('zonesContainer');
+      if (zonesContainer) {
+        zonesContainer.innerHTML = zones.map(zone => `
+          <div class="zone-card">
+            <div class="zone-header">
+              <h4>${zone.name}</h4>
+              <span class="zone-type">${zone.fishing_zone}</span>
+            </div>
+            <div class="zone-details">
+              <div class="zone-detail-item">
+                <i class="fas fa-fish"></i>
+                <span><strong>Fish Species:</strong> ${zone.recommended_species || zone.fish_type}</span>
+              </div>
+              <div class="zone-detail-item">
+                <i class="fas fa-thermometer-half"></i>
+                <span><strong>SST:</strong> ${zone.sea_surface_temp}°C</span>
+              </div>
+              <div class="zone-detail-item">
+                <i class="fas fa-vial"></i>
+                <span><strong>Chlorophyll-a:</strong> ${zone.chlorophyll_a} mg/m³</span>
+              </div>
+              <div class="zone-detail-item">
+                <i class="fas fa-star"></i>
+                <span><strong>Fishing Score:</strong> ${zone.fishing_score}/100</span>
+              </div>
+              <div class="zone-detail-item">
+                <i class="fas fa-water"></i>
+                <span><strong>Best Season:</strong> ${zone.best_season}</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+      
       // Fetch fishing spots
-      const spotsRes = await fetch(`${window.App.API_URL}/fishing/spots`);
+      const spotsRes = await fetch(`${window.App.API_URL}/fishing/spots/daily`);
       const spots = await spotsRes.json();
       
       document.getElementById('totalSpots').textContent = spots.length;
