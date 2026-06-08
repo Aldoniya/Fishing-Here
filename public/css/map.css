@@ -263,6 +263,44 @@ body.map-layout {
   transition: var(--transition);
 }
 
+.base-layer-menu {
+  position: absolute;
+  top: 180px;
+  right: 20px;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e0e0e0;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.base-layer-menu.show {
+  display: flex;
+}
+
+.base-layer-option {
+  background: #f8f9fa;
+  border: 1px solid #d7e1ea;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--dark);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.base-layer-option:hover,
+.base-layer-option.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
 .map-control-btn:hover {
   background: var(--primary);
   color: var(--white);

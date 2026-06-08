@@ -167,15 +167,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  function cycleBaseLayer() {
-    const keys = ['openstreet', 'topographic', 'ocean', 'satellite'];
-    const currentIndex = keys.indexOf(currentBaseLayerKey);
-    const nextKey = keys[(currentIndex + 1) % keys.length];
+  function switchBaseLayer(key) {
+    if (!baseLayers[key]) return;
     map.removeLayer(currentBaseLayer);
-    currentBaseLayerKey = nextKey;
-    currentBaseLayer = baseLayers[currentBaseLayerKey];
+    currentBaseLayer = baseLayers[key];
     currentBaseLayer.addTo(map);
-    document.getElementById('toggleBaseLayer').title = `Base map: ${currentBaseLayerKey}`;
+    currentBaseLayerKey = key;
+    document.querySelectorAll('.base-layer-option').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.layer === key);
+    });
+    document.getElementById('toggleBaseLayer').title = `Base map: ${key}`;
   }
 
   function updateRouteFromDashboard() {
@@ -252,6 +253,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Pan to spot
     map.flyTo([selectedSpot.latitude, selectedSpot.longitude], 13);
+
+    // If origin already known, show the route immediately
+    if (userLocation) {
+      calculateRoute(userLocation, [selectedSpot.latitude, selectedSpot.longitude]);
+    }
   }
   
   // Load spot weather
@@ -492,7 +498,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   
   document.getElementById('toggleLayer').addEventListener('click', toggleDataLayer);
-  document.getElementById('toggleBaseLayer')?.addEventListener('click', cycleBaseLayer);
+  document.getElementById('toggleBaseLayer')?.addEventListener('click', () => {
+    document.getElementById('baseLayerMenu').classList.toggle('show');
+  });
+
+  document.querySelectorAll('.base-layer-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchBaseLayer(btn.dataset.layer);
+      document.getElementById('baseLayerMenu').classList.remove('show');
+    });
+  });
   
   // Search spots
   document.getElementById('spotSearch').addEventListener('input', (e) => {
@@ -520,6 +535,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
   
+  // Start navigation
+  document.getElementById('startNavigation').addEventListener('click', () => {
+    if (!selectedSpot) {
+      alert('Please select a fishing destination first.');
+      return;
+    }
+
+    if (!userLocation) {
+      if (!('geolocation' in navigator)) {
+        alert('Geolocation is not supported by your browser.');
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          userLocation = [position.coords.latitude, position.coords.longitude];
+          calculateRoute(userLocation, [selectedSpot.latitude, selectedSpot.longitude]);
+        },
+        () => {
+          alert('Unable to get your location. Please allow location services.');
+        }
+      );
+
+      return;
+    }
+
+    calculateRoute(userLocation, [selectedSpot.latitude, selectedSpot.longitude]);
+  });
+
   // Save route
   document.getElementById('saveRoute').addEventListener('click', async () => {
     const token = window.App.getToken();
