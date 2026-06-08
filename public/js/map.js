@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   let selectedSpot = null;
   let userLocation = null;
   let routeLine = null;
+  let chlorophyllLayer = null;
+  let sstLayer = null;
+  let dataLayerActive = null;
   
   // Load fishing spots
   await loadFishingSpots();
@@ -38,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="spot-list-item" data-id="${spot.id}">
         <h4>${spot.name}</h4>
         <p>${spot.fish_type || 'Various fish'}</p>
+        <div class="spot-zone">${spot.fishing_zone || 'Fishing hotspot'}</div>
         <div class="spot-info">
           <span><i class="fas fa-ruler-vertical"></i> ${spot.depth || '-'}m</span>
           <span><i class="fas fa-shield-alt"></i> ${spot.safety_level || 'Good'}</span>
@@ -78,6 +82,10 @@ document.addEventListener('DOMContentLoaded', async () => {
               <span><i class="fas fa-vial"></i> ${spot.chlorophyll_a || '-'} mg/m³</span>
             </div>
             <div class="popup-meta">
+              <span><i class="fas fa-water"></i> ${spot.fishing_zone || 'Ocean hotspot'}</span>
+              <span><i class="fas fa-satellite"></i> ${spot.sst_source || 'Aqua MODIS SST'}</span>
+            </div>
+            <div class="popup-meta">
               <span><i class="fas fa-star"></i> Score ${spot.fishing_score || '-'}/100</span>
             </div>
           </div>
@@ -87,6 +95,62 @@ document.addEventListener('DOMContentLoaded', async () => {
         selectSpot(spot.id);
       });
     });
+  }
+  
+  function setupSatelliteDataLayers() {
+    const time = new Date().toISOString().split('T')[0];
+
+    chlorophyllLayer = L.tileLayer(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_L3m_CHL_chlor_a/default/${time}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.png`, {
+      attribution: 'Chlorophyll A data from Sentinel-3 / MODIS via NASA GIBS',
+      opacity: 0.65
+    });
+
+    sstLayer = L.tileLayer(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/Aqua_MODIS_L3_SST/default/${time}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.png`, {
+      attribution: 'Sea Surface Temperature from Aqua MODIS via NASA GIBS',
+      opacity: 0.65
+    });
+
+    dataLayerActive = null;
+  }
+
+  function renderZoneList() {
+    const zoneList = document.getElementById('zonesList');
+    const zones = spots
+      .filter(spot => spot.convergence_index >= 65)
+      .sort((a, b) => b.convergence_index - a.convergence_index)
+      .slice(0, 5);
+
+    zoneList.innerHTML = zones.map(zone => `
+      <div class="zone-item" data-id="${zone.id}">
+        <h4>${zone.name}</h4>
+        <p>${zone.fishing_zone}</p>
+        <span><strong>Fish:</strong> ${zone.fish_type}</span>
+        <span><strong>Score:</strong> ${zone.fishing_score}/100</span>
+      </div>
+    `).join('');
+
+    document.querySelectorAll('.zone-item').forEach(item => {
+      item.addEventListener('click', () => selectSpot(parseInt(item.dataset.id)));
+    });
+  }
+
+  function toggleDataLayer() {
+    if (!chlorophyllLayer || !sstLayer) return;
+
+    if (!dataLayerActive) {
+      chlorophyllLayer.addTo(map);
+      dataLayerActive = 'chlorophyll';
+      document.getElementById('toggleLayer').title = 'Toggle SST layer';
+    } else if (dataLayerActive === 'chlorophyll') {
+      map.removeLayer(chlorophyllLayer);
+      sstLayer.addTo(map);
+      dataLayerActive = 'sst';
+      document.getElementById('toggleLayer').title = 'Toggle chlorophyll layer';
+    } else {
+      map.removeLayer(sstLayer);
+      dataLayerActive = null;
+      document.getElementById('toggleLayer').title = 'Toggle ocean data layers';
+    }
   }
   
   // Select a spot
@@ -360,6 +424,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
   
+  document.getElementById('toggleLayer').addEventListener('click', toggleDataLayer);
+  
   // Search spots
   document.getElementById('spotSearch').addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
@@ -425,6 +491,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       spots = await res.json();
       renderSpotsList();
       addMarkersToMap();
+      setupSatelliteDataLayers();
+      renderZoneList();
     } catch (error) {
       console.error('Error loading spots:', error);
     }

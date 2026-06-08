@@ -41,6 +41,20 @@ const getDailyOceanMetrics = (date, index) => {
   };
 };
 
+const determineFishingZone = (temp, chlorophyll) => {
+  if (chlorophyll >= 0.19 && temp >= 26 && temp <= 29) return 'Pelagic convergence zone';
+  if (chlorophyll >= 0.17 && temp >= 24 && temp <= 30) return 'Plankton-rich shelf edge';
+  if (chlorophyll >= 0.15) return 'Nutrient bloom patch';
+  return 'Warm stable surface patch';
+};
+
+const calculateConvergenceIndex = (temp, chlorophyll) => {
+  let index = 40;
+  index += Math.max(0, 20 - Math.abs(temp - 28) * 3);
+  index += Math.min(30, Math.max(0, (chlorophyll - 0.12) * 150));
+  return Math.min(100, Math.round(index));
+};
+
 const calculateFishingScore = (spot, temp, chlorophyll) => {
   let score = 50;
   score += Math.max(0, 14 - Math.abs(temp - 27) * 2);
@@ -48,20 +62,31 @@ const calculateFishingScore = (spot, temp, chlorophyll) => {
   score += spot.depth > 30 ? 8 : 4;
   score += spot.safety_level === 'Excellent' ? 6 : spot.safety_level === 'Good' ? 4 : 2;
   score += spot.best_season.toLowerCase().includes('year-round') ? 5 : 0;
+  score += calculateConvergenceIndex(temp, chlorophyll) * 0.15;
   return Math.min(100, Math.round(score));
 };
+
+const createOceanSourceMeta = () => ({
+  sst_source: 'Aqua MODIS 1km SST',
+  chlorophyll_source: 'Sentinel-3 OLCI 500m Chlorophyll-a'
+});
 
 const generateDailyOceanSpots = (date, latitude, longitude, count = 24) => {
   const useDistance = typeof latitude === 'number' && typeof longitude === 'number';
   return oceanSpotTemplates
     .map((spot, idx) => {
       const metrics = getDailyOceanMetrics(date, idx);
+      const zone = determineFishingZone(metrics.sea_surface_temp, metrics.chlorophyll_a);
+      const convergenceIndex = calculateConvergenceIndex(metrics.sea_surface_temp, metrics.chlorophyll_a);
       const distance = useDistance
         ? calculateDistance(latitude, longitude, spot.latitude, spot.longitude)
         : null;
       return {
         ...spot,
         ...metrics,
+        ...createOceanSourceMeta(),
+        fishing_zone: zone,
+        convergence_index: convergenceIndex,
         fishing_score: calculateFishingScore(spot, metrics.sea_surface_temp, metrics.chlorophyll_a),
         distance: distance !== null ? parseFloat(distance.toFixed(1)) : null
       };
@@ -98,6 +123,43 @@ router.get('/spots/daily', (req, res) => {
 
   const spots = generateDailyOceanSpots(date, latitude, longitude, 28);
   res.json(spots);
+});
+
+// Get top ocean convergence zones for fishing
+router.get('/zones', (req, res) => {
+  const dateString = req.query.date || new Date().toISOString().split('T')[0];
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) {
+    return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD.' });
+  }
+
+  const lat = parseFloat(req.query.lat);
+  const lng = parseFloat(req.query.lng);
+  const latitude = Number.isNaN(lat) ? undefined : lat;
+  const longitude = Number.isNaN(lng) ? undefined : lng;
+
+  const spots = generateDailyOceanSpots(date, latitude, longitude, 30);
+  const zones = spots
+    .sort((a, b) => b.convergence_index - a.convergence_index)
+    .slice(0, 5)
+    .map(spot => ({
+      id: spot.id,
+      name: spot.name,
+      latitude: spot.latitude,
+      longitude: spot.longitude,
+      fish_type: spot.fish_type,
+      best_season: spot.best_season,
+      sea_surface_temp: spot.sea_surface_temp,
+      chlorophyll_a: spot.chlorophyll_a,
+      fishing_zone: spot.fishing_zone,
+      convergence_index: spot.convergence_index,
+      fishing_score: spot.fishing_score,
+      sst_source: spot.sst_source,
+      chlorophyll_source: spot.chlorophyll_source,
+      recommended_species: spot.fish_type
+    }));
+
+  res.json(zones);
 });
 
 // Get fishing spot by ID
