@@ -299,58 +299,151 @@ document.addEventListener('DOMContentLoaded', async () => {
     calculateRoute(userLocation, [selectedSpot.latitude, selectedSpot.longitude]);
   });
   
-  // Calculate route
-  function calculateRoute(start, end) {
+  // Decode OSRM polyline format
+  function decodePolyline(encoded) {
+    const poly = [];
+    let index = 0, lat = 0, lng = 0;
+    while (index < encoded.length) {
+      let result = 0, shift = 0, b;
+      do {
+        b = encoded.charCodeAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      lat += ((result & 1) ? ~(result >> 1) : (result >> 1));
+      result = 0;
+      shift = 0;
+      do {
+        b = encoded.charCodeAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      lng += ((result & 1) ? ~(result >> 1) : (result >> 1));
+      poly.push([lat / 1e5, lng / 1e5]);
+    }
+    return poly;
+  }
+
+  // Generate turn-by-turn directions from OSRM route steps
+  function generateSteps(legs, destination) {
+    if (!legs || legs.length === 0) {
+      return [
+        { icon: 'fa-play', text: 'Start from your location', distance: '0 m' },
+        { icon: 'fa-ship', text: `Navigate towards ${destination}`, distance: 'En route' },
+        { icon: 'fa-flag-checkered', text: 'Arrive at fishing spot', distance: 'Destination' }
+      ];
+    }
+    const steps = [{ icon: 'fa-play', text: 'Start from your location', distance: '0 m' }];
+    legs.forEach((leg) => {
+      const distance = leg.distance < 1000 ? `${leg.distance.toFixed(0)} m` : `${(leg.distance / 1000).toFixed(1)} km`;
+      const instruction = leg.name ? `Head towards ${leg.name}` : 'Continue navigation';
+      steps.push({ icon: 'fa-route', text: instruction, distance: distance });
+    });
+    steps.push({ icon: 'fa-flag-checkered', text: `Arrive at ${destination}`, distance: 'End' });
+    return steps;
+  }
+
+  // Update remaining distance as user moves (real-time tracking)
+  function updateRouteProgress(currentLoc, destination) {
+    const remainingDistance = calculateDistance(currentLoc[0], currentLoc[1], destination[0], destination[1]);
+    const remainingTime = Math.round(remainingDistance / 30 * 60);
+    document.getElementById('routeDistance').textContent = `${remainingDistance.toFixed(1)} km remaining`;
+    document.getElementById('routeTime').textContent = `${remainingTime} min remaining`;
+  }
+
+  let routeWatchId = null;
+
+  // Calculate route using OSRM API with real-time tracking
+  async function calculateRoute(start, end) {
     const routePanel = document.getElementById('routePanel');
     document.getElementById('routeDestination').textContent = selectedSpot.name;
-    
-    // Calculate distance (simple approximation)
-    const distance = calculateDistance(start[0], start[1], end[0], end[1]);
-    const time = Math.round(distance / 30 * 60); // Assume 30 km/h average boat speed
-    
-    document.getElementById('routeDistance').textContent = `${distance.toFixed(1)} km`;
-    document.getElementById('routeTime').textContent = `${time} min`;
-    
-    // Display coordinates
-    document.getElementById('routeLat').textContent = end[0].toFixed(6);
-    document.getElementById('routeLng').textContent = end[1].toFixed(6);
-    document.getElementById('routeSeaTemp').textContent = selectedSpot.sea_surface_temp ? `SST: ${selectedSpot.sea_surface_temp}°C` : 'SST: -';
-    document.getElementById('routeChlorophyll').textContent = selectedSpot.chlorophyll_a ? `Chl-a: ${selectedSpot.chlorophyll_a} mg/m³` : 'Chl-a: -';
-    document.getElementById('routeScore').textContent = selectedSpot.fishing_score ? `Score: ${selectedSpot.fishing_score}/100` : 'Score: -';
-    
-    // Generate route steps
-    const steps = [
-      { icon: 'fa-play', text: 'Start from your location' },
-      { icon: 'fa-directions', text: `Head towards ${selectedSpot.name}` },
-      { icon: 'fa-flag-checkered', text: 'Arrive at fishing spot' }
-    ];
-    
-    document.getElementById('routeSteps').innerHTML = steps.map(step => `
-      <div class="route-step">
-        <span class="step-icon"><i class="fas ${step.icon}"></i></span>
-        <span>${step.text}</span>
-      </div>
-    `).join('');
-    
-    routePanel.style.display = 'block';
-    
-    // Draw route line on map
-    if (routeLine) map.removeLayer(routeLine);
-    routeLine = L.polyline([start, end], {
-      color: '#0077b6',
-      weight: 4,
-      opacity: 0.8
-    }).addTo(map);
-    
-    // Add animation to route panel
-    routePanel.style.opacity = '0';
-    routePanel.style.display = 'block';
-    setTimeout(() => {
-      routePanel.style.transition = 'opacity 0.3s ease-in-out';
-      routePanel.style.opacity = '1';
-    }, 10);
 
-    map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+    try {
+      // Stop any existing position tracking
+      if (routeWatchId !== null) {
+        navigator.geolocation.clearWatch(routeWatchId);
+        routeWatchId = null;
+      }
+
+      // Get actual route from OSRM API
+      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&steps=true`;
+      const routeResponse = await fetch(osrmUrl);
+      const routeData = await routeResponse.json();
+
+      if (!routeData.routes || routeData.routes.length === 0) {
+        // Fallback to simple calculation if API fails
+        const distance = calculateDistance(start[0], start[1], end[0], end[1]);
+        const time = Math.round(distance / 30 * 60);
+        document.getElementById('routeDistance').textContent = `${distance.toFixed(1)} km`;
+        document.getElementById('routeTime').textContent = `${time} min`;
+      } else {
+        const route = routeData.routes[0];
+        const distanceKm = (route.distance / 1000).toFixed(1);
+        const durationMin = Math.round(route.duration / 60);
+
+        document.getElementById('routeDistance').textContent = `${distanceKm} km`;
+        document.getElementById('routeTime').textContent = `${durationMin} min`;
+
+        // Decode and draw polyline on map
+        const coords = decodePolyline(route.geometry);
+        if (routeLine) map.removeLayer(routeLine);
+        routeLine = L.polyline(coords, {
+          color: '#0077b6',
+          weight: 4,
+          opacity: 0.8
+        }).addTo(map);
+        map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+
+        // Generate turn-by-turn steps from route
+        const steps = generateSteps(route.legs[0].steps, selectedSpot.name);
+        document.getElementById('routeSteps').innerHTML = steps.map(step => `
+          <div class="route-step">
+            <span class="step-icon"><i class="fas ${step.icon}"></i></span>
+            <span class="step-text">${step.text}</span>
+            <span class="step-meta" style="font-size:11px;color:#999;">${step.distance}</span>
+          </div>
+        `).join('');
+
+        // Start real-time position tracking to update distance/time
+        if ('geolocation' in navigator) {
+          routeWatchId = navigator.geolocation.watchPosition(
+            (position) => {
+              const currentLoc = [position.coords.latitude, position.coords.longitude];
+              updateRouteProgress(currentLoc, end);
+            },
+            () => {},
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+          );
+        }
+      }
+
+      // Display destination coordinates and conditions
+      document.getElementById('routeLat').textContent = end[0].toFixed(6);
+      document.getElementById('routeLng').textContent = end[1].toFixed(6);
+      document.getElementById('routeSeaTemp').textContent = selectedSpot.sea_surface_temp ? `SST: ${selectedSpot.sea_surface_temp}°C` : 'SST: -';
+      document.getElementById('routeChlorophyll').textContent = selectedSpot.chlorophyll_a ? `Chl-a: ${selectedSpot.chlorophyll_a} mg/m³` : 'Chl-a: -';
+      document.getElementById('routeScore').textContent = selectedSpot.fishing_score ? `Score: ${selectedSpot.fishing_score}/100` : 'Score: -';
+
+      routePanel.style.display = 'block';
+      routePanel.style.opacity = '0';
+      setTimeout(() => {
+        routePanel.style.transition = 'opacity 0.3s ease-in-out';
+        routePanel.style.opacity = '1';
+      }, 10);
+    } catch (error) {
+      console.error('Route calculation error:', error);
+      // Fallback to simple calculation on API error
+      const distance = calculateDistance(start[0], start[1], end[0], end[1]);
+      const time = Math.round(distance / 30 * 60);
+      document.getElementById('routeDistance').textContent = `${distance.toFixed(1)} km`;
+      document.getElementById('routeTime').textContent = `${time} min`;
+      document.getElementById('routeLat').textContent = end[0].toFixed(6);
+      document.getElementById('routeLng').textContent = end[1].toFixed(6);
+      document.getElementById('routeSeaTemp').textContent = selectedSpot.sea_surface_temp ? `SST: ${selectedSpot.sea_surface_temp}°C` : 'SST: -';
+      document.getElementById('routeChlorophyll').textContent = selectedSpot.chlorophyll_a ? `Chl-a: ${selectedSpot.chlorophyll_a} mg/m³` : 'Chl-a: -';
+      document.getElementById('routeScore').textContent = selectedSpot.fishing_score ? `Score: ${selectedSpot.fishing_score}/100` : 'Score: -';
+      routePanel.style.display = 'block';
+    }
   }
   
   // Calculate distance between two points
