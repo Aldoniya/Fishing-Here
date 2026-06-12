@@ -544,6 +544,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('routeChlorophyll').textContent = selectedSpot.chlorophyll_a ? `Chl-a: ${selectedSpot.chlorophyll_a} mg/m³` : 'Chl-a: -';
       document.getElementById('routeScore').textContent = selectedSpot.fishing_score ? `Score: ${selectedSpot.fishing_score}/100` : 'Score: -';
       routePanel.style.display = 'block';
+      startNavigationWatch(end);
     }
   }
   
