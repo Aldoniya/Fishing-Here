@@ -12,29 +12,40 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   const baseLayers = {
     openstreet: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+      minZoom: 0,
+      crossOrigin: 'anonymous'
     }),
     topographic: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)',
-      maxZoom: 17
+      attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
+      maxZoom: 17,
+      minZoom: 0,
+      crossOrigin: 'anonymous'
     }),
-    natgeo: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
-      maxZoom: 16
+    natgeo: L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA',
+      maxZoom: 16,
+      minZoom: 0,
+      crossOrigin: 'anonymous'
     }),
-    terrain: L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.png', {
-      attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      subdomains: 'abcd',
-      maxZoom: 18
+    terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
+      maxZoom: 17,
+      minZoom: 0,
+      crossOrigin: 'anonymous'
     }),
-    ocean: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
+    ocean: L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, Infomarineonline, Esri, and GIS User Community',
-      maxZoom: 13
+      maxZoom: 13,
+      minZoom: 0,
+      crossOrigin: 'anonymous'
     }),
-    satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    satellite: L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-      maxZoom: 18
+      maxZoom: 18,
+      minZoom: 0,
+      crossOrigin: 'anonymous'
     })
   };
   
@@ -183,14 +194,40 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function switchBaseLayer(key) {
     if (!baseLayers[key]) return;
-    map.removeLayer(currentBaseLayer);
-    currentBaseLayer = baseLayers[key];
-    currentBaseLayer.addTo(map);
-    currentBaseLayerKey = key;
-    document.querySelectorAll('.base-layer-option').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.layer === key);
-    });
-    document.getElementById('toggleBaseLayer').title = `Base map: ${key}`;
+    
+    try {
+      // Remove current layer
+      if (currentBaseLayer && map.hasLayer(currentBaseLayer)) {
+        map.removeLayer(currentBaseLayer);
+      }
+      
+      // Add new layer
+      currentBaseLayer = baseLayers[key];
+      currentBaseLayer.addTo(map);
+      currentBaseLayerKey = key;
+      
+      // Update UI
+      document.querySelectorAll('.base-layer-option').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.layer === key);
+      });
+      
+      const layerNames = {
+        openstreet: 'OpenStreetMap',
+        topographic: 'Topographic',
+        natgeo: 'National Geographic',
+        terrain: 'Terrain',
+        ocean: 'Ocean',
+        satellite: 'Satellite'
+      };
+      document.getElementById('toggleBaseLayer').title = `Base map: ${layerNames[key] || key}`;
+      
+      // Log for debugging
+      console.log(`Switched to ${key} basemap`);
+    } catch (error) {
+      console.error(`Error switching to ${key} basemap:`, error);
+      alert(`Could not load ${key} basemap. Reverting to OpenStreetMap.`);
+      switchBaseLayer('openstreet');
+    }
   }
 
   function updateRouteFromDashboard() {

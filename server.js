@@ -23,9 +23,9 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://unpkg.com", "https://cdnjs.cloudflare.com"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://unpkg.com", "https://cdnjs.cloudflare.com"],
-      imgSrc: ["'self'", "data:", "https://*.tile.openstreetmap.org", "https://*.openstreetmap.org", "https://unpkg.com"],
+      imgSrc: ["'self'", "data:", "https://*.tile.openstreetmap.org", "https://*.openstreetmap.org", "https://*.opentopomap.org", "https://*.arcgisonline.com", "https://services.arcgisonline.com", "https://server.arcgisonline.com", "https://gibs.earthdata.nasa.gov", "https://unpkg.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-      connectSrc: ["'self'", "https://api.openweathermap.org", "https://nominatim.openstreetmap.org"]
+      connectSrc: ["'self'", "https://api.openweathermap.org", "https://nominatim.openstreetmap.org", "https://*.tile.openstreetmap.org", "https://*.opentopomap.org", "https://services.arcgisonline.com", "https://gibs.earthdata.nasa.gov"]
     }
   }
 }));
