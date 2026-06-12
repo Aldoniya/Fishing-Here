@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let selectedSpot = null;
   let userLocation = null;
   let routeLine = null;
+  let userMarker = null;
   let chlorophyllLayer = null;
   let sstLayer = null;
   let dataLayerActive = null;
@@ -343,12 +344,63 @@ document.addEventListener('DOMContentLoaded', async () => {
     return steps;
   }
 
-  // Update remaining distance as user moves (real-time tracking)
+  // Add or update the user's moving marker on the map
+  function addOrUpdateUserMarker(position) {
+    const [lat, lng] = position;
+    const userIcon = L.divIcon({
+      className: 'user-location-marker',
+      html: '<i class="fas fa-user"></i>',
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
+
+    if (userMarker) {
+      userMarker.setLatLng(position);
+    } else {
+      userMarker = L.marker(position, { icon: userIcon })
+        .addTo(map)
+        .bindPopup('You are here');
+    }
+  }
+
+  // Update remaining distance/time and keep the map centered on the user's moving location
   function updateRouteProgress(currentLoc, destination) {
     const remainingDistance = calculateDistance(currentLoc[0], currentLoc[1], destination[0], destination[1]);
     const remainingTime = Math.round(remainingDistance / 30 * 60);
     document.getElementById('routeDistance').textContent = `${remainingDistance.toFixed(1)} km remaining`;
     document.getElementById('routeTime').textContent = `${remainingTime} min remaining`;
+
+    addOrUpdateUserMarker(currentLoc);
+    if (routeLine) {
+      const currentBounds = routeLine.getBounds();
+      if (!currentBounds.contains(currentLoc)) {
+        map.panTo(currentLoc);
+      }
+    } else {
+      map.panTo(currentLoc);
+    }
+  }
+
+  function startNavigationWatch(end) {
+    if (!('geolocation' in navigator)) return;
+
+    if (routeWatchId !== null) {
+      navigator.geolocation.clearWatch(routeWatchId);
+      routeWatchId = null;
+    }
+
+    routeWatchId = navigator.geolocation.watchPosition(
+      (position) => {
+        const currentLoc = [position.coords.latitude, position.coords.longitude];
+        userLocation = currentLoc;
+        addOrUpdateUserMarker(currentLoc);
+        updateRouteProgress(currentLoc, end);
+      },
+      (error) => {
+        console.warn('Navigation tracking error:', error);
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
   }
 
   let routeWatchId = null;
@@ -376,6 +428,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         const time = Math.round(distance / 30 * 60);
         document.getElementById('routeDistance').textContent = `${distance.toFixed(1)} km`;
         document.getElementById('routeTime').textContent = `${time} min`;
+
+        if (routeLine) map.removeLayer(routeLine);
+        routeLine = L.polyline([start, end], {
+          color: '#0077b6',
+          weight: 4,
+          dashArray: '4,8',
+          opacity: 0.8
+        }).addTo(map);
+        map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+
+        document.getElementById('routeSteps').innerHTML = `
+          <div class="route-step">
+            <span class="step-icon"><i class="fas fa-play"></i></span>
+            <span class="step-text">Start from your current location</span>
+            <span class="step-meta" style="font-size:11px;color:#999;">0 m</span>
+          </div>
+          <div class="route-step">
+            <span class="step-icon"><i class="fas fa-route"></i></span>
+            <span class="step-text">Head towards your selected fishing spot</span>
+            <span class="step-meta" style="font-size:11px;color:#999;">${distance.toFixed(1)} km</span>
+          </div>
+          <div class="route-step">
+            <span class="step-icon"><i class="fas fa-flag-checkered"></i></span>
+            <span class="step-text">Arrive at ${selectedSpot.name}</span>
+            <span class="step-meta" style="font-size:11px;color:#999;">Destination</span>
+          </div>
+        `;
+
+        startNavigationWatch(end);
       } else {
         const route = routeData.routes[0];
         const distanceKm = (route.distance / 1000).toFixed(1);
@@ -385,7 +466,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('routeTime').textContent = `${durationMin} min`;
 
         // Decode and draw polyline on map
-        const coords = decodePolyline(route.geometry);
+        const coords = route.geometry?.coordinates
+          ? route.geometry.coordinates.map(coord => [coord[1], coord[0]])
+          : decodePolyline(route.geometry);
         if (routeLine) map.removeLayer(routeLine);
         routeLine = L.polyline(coords, {
           color: '#0077b6',
@@ -404,17 +487,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
         `).join('');
 
-        // Start real-time position tracking to update distance/time
-        if ('geolocation' in navigator) {
-          routeWatchId = navigator.geolocation.watchPosition(
-            (position) => {
-              const currentLoc = [position.coords.latitude, position.coords.longitude];
-              updateRouteProgress(currentLoc, end);
-            },
-            () => {},
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-          );
-        }
+        startNavigationWatch(end);
       }
 
       // Display destination coordinates and conditions
@@ -437,6 +510,34 @@ document.addEventListener('DOMContentLoaded', async () => {
       const time = Math.round(distance / 30 * 60);
       document.getElementById('routeDistance').textContent = `${distance.toFixed(1)} km`;
       document.getElementById('routeTime').textContent = `${time} min`;
+
+      if (routeLine) map.removeLayer(routeLine);
+      routeLine = L.polyline([start, end], {
+        color: '#0077b6',
+        weight: 4,
+        dashArray: '4,8',
+        opacity: 0.8
+      }).addTo(map);
+      map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+
+      document.getElementById('routeSteps').innerHTML = `
+        <div class="route-step">
+          <span class="step-icon"><i class="fas fa-play"></i></span>
+          <span class="step-text">Start from your current location</span>
+          <span class="step-meta" style="font-size:11px;color:#999;">0 m</span>
+        </div>
+        <div class="route-step">
+          <span class="step-icon"><i class="fas fa-route"></i></span>
+          <span class="step-text">Head towards your selected fishing spot</span>
+          <span class="step-meta" style="font-size:11px;color:#999;">${distance.toFixed(1)} km</span>
+        </div>
+        <div class="route-step">
+          <span class="step-icon"><i class="fas fa-flag-checkered"></i></span>
+          <span class="step-text">Arrive at ${selectedSpot.name}</span>
+          <span class="step-meta" style="font-size:11px;color:#999;">Destination</span>
+        </div>
+      `;
+
       document.getElementById('routeLat').textContent = end[0].toFixed(6);
       document.getElementById('routeLng').textContent = end[1].toFixed(6);
       document.getElementById('routeSeaTemp').textContent = selectedSpot.sea_surface_temp ? `SST: ${selectedSpot.sea_surface_temp}°C` : 'SST: -';
