@@ -1,5 +1,7 @@
 // filepath: server.js
 const express = require('express');
+// Load environment variables from .env in development
+try { require('dotenv').config(); } catch (e) { /* ignore if dotenv not installed */ }
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -15,6 +17,11 @@ const commentRoutes = require('./server/routes/comments');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Warn if OpenWeatherMap key is not configured
+if (!process.env.OPENWEATHER_API_KEY) {
+  console.warn('Warning: OPENWEATHER_API_KEY is not set. Weather animation proxy will be disabled until you set it.');
+}
 
 // Security middleware
 app.use(helmet({
