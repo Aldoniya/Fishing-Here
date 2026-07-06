@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../models/database');
+const fetch = require('node-fetch');
 
 // OpenWeatherMap API (free tier)
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY || 'demo_key';
@@ -102,6 +103,34 @@ router.get('/coords', (req, res) => {
   };
   
   res.json(weather);
+});
+
+// Proxy OpenWeatherMap tile requests so API key is kept server-side
+router.get('/tiles/openweathermap/:layer/:z/:x/:y.png', async (req, res) => {
+  const { layer, z, x, y } = req.params;
+  const key = process.env.OPENWEATHER_API_KEY || WEATHER_API_KEY;
+  if (!key || key === 'demo_key') {
+    return res.status(403).json({ error: 'OpenWeatherMap API key not configured on server' });
+  }
+
+  const tileUrl = `https://tile.openweathermap.org/map/${layer}/${z}/${x}/${y}.png?appid=${key}`;
+
+  try {
+    const upstream = await fetch(tileUrl);
+    if (!upstream.ok) {
+      console.error('Upstream tile error', upstream.status, upstream.statusText, tileUrl);
+      return res.status(502).send('Upstream tile error');
+    }
+
+    const buffer = await upstream.buffer();
+    res.set('Content-Type', 'image/png');
+    // Short cache to reduce load but keep it relatively fresh
+    res.set('Cache-Control', 'public, max-age=300');
+    res.send(buffer);
+  } catch (err) {
+    console.error('Tile proxy error:', err);
+    res.status(500).send('Tile proxy error');
+  }
 });
 
 module.exports = router;

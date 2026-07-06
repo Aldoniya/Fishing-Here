@@ -190,10 +190,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function createWeatherAnimationLayer() {
-    const apiKey = window.App.OPEN_WEATHER_API_KEY || '';
-    if (!apiKey) return null;
-    return L.tileLayer(`https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=${apiKey}`, {
-      attribution: 'Weather animation © OpenWeatherMap',
+    // Use server-side proxy to keep API key secret. Server exposes:
+    // GET /api/weather/tiles/openweathermap/:layer/:z/:x/:y.png
+    const base = (window.App && window.App.API_URL) ? window.App.API_URL.replace(/\/$/, '') : '';
+    const tileUrl = `${base}/weather/tiles/openweathermap/wind_new/{z}/{x}/{y}.png`;
+    return L.tileLayer(tileUrl, {
+      attribution: 'Weather animation © OpenWeatherMap (proxied)',
       opacity: 0.65,
       maxZoom: 18,
       minZoom: 0
@@ -203,15 +205,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function updateWeatherAnimationState() {
     const btn = document.getElementById('toggleWeather');
     if (mapWeatherAnimation) {
-      if (!weatherAnimationLayer) {
-        weatherAnimationLayer = createWeatherAnimationLayer();
-      }
-      if (!weatherAnimationLayer) {
-        mapWeatherAnimation = false;
-        btn.classList.remove('active');
-        alert('Weather animation requires an OpenWeatherMap API key set in window.App.OPEN_WEATHER_API_KEY.');
-        return;
-      }
+      if (!weatherAnimationLayer) weatherAnimationLayer = createWeatherAnimationLayer();
       weatherAnimationLayer.addTo(map);
       btn.classList.add('active');
       btn.title = 'Disable Weather Animation';
