@@ -17,9 +17,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       minZoom: 0,
       crossOrigin: 'anonymous'
     }),
-    topographic: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
-      maxZoom: 17,
+    topographic: L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA',
+      maxZoom: 16,
       minZoom: 0,
       crossOrigin: 'anonymous'
     }),
@@ -29,13 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       minZoom: 0,
       crossOrigin: 'anonymous'
     }),
-    terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
-      maxZoom: 17,
-      minZoom: 0,
-      crossOrigin: 'anonymous'
-    }),
-    ocean: L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}', {
+    ocean: L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, Infomarineonline, Esri, and GIS User Community',
       maxZoom: 13,
       minZoom: 0,
@@ -49,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     })
   };
   
-  let currentBaseLayerKey = 'openstreet';
+  let currentBaseLayerKey = 'ocean';
   let currentBaseLayer = baseLayers[currentBaseLayerKey];
   currentBaseLayer.addTo(map);
   
@@ -69,6 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   let chlorophyllLayer = null;
   let sstLayer = null;
   let dataLayerActive = null;
+  let mapWeatherAnimation = false;
+  let weatherAnimationLayer = null;
   
   // Load fishing spots
   await loadFishingSpots();
@@ -150,6 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     dataLayerActive = null;
+    weatherAnimationLayer = null;
   }
 
   function renderZoneList() {
@@ -192,6 +189,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  function createWeatherAnimationLayer() {
+    const apiKey = window.App.OPEN_WEATHER_API_KEY || '';
+    if (!apiKey) return null;
+    return L.tileLayer(`https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=${apiKey}`, {
+      attribution: 'Weather animation © OpenWeatherMap',
+      opacity: 0.65,
+      maxZoom: 18,
+      minZoom: 0
+    });
+  }
+
+  function updateWeatherAnimationState() {
+    const btn = document.getElementById('toggleWeather');
+    if (mapWeatherAnimation) {
+      if (!weatherAnimationLayer) {
+        weatherAnimationLayer = createWeatherAnimationLayer();
+      }
+      if (!weatherAnimationLayer) {
+        mapWeatherAnimation = false;
+        btn.classList.remove('active');
+        alert('Weather animation requires an OpenWeatherMap API key set in window.App.OPEN_WEATHER_API_KEY.');
+        return;
+      }
+      weatherAnimationLayer.addTo(map);
+      btn.classList.add('active');
+      btn.title = 'Disable Weather Animation';
+    } else {
+      if (weatherAnimationLayer && map.hasLayer(weatherAnimationLayer)) {
+        map.removeLayer(weatherAnimationLayer);
+      }
+      btn.classList.remove('active');
+      btn.title = 'Enable Weather Animation';
+    }
+  }
+
   function switchBaseLayer(key) {
     if (!baseLayers[key]) return;
     
@@ -216,7 +248,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         topographic: 'Topographic',
         natgeo: 'National Geographic',
         terrain: 'Terrain',
-        ocean: 'Ocean',
+        ocean: 'World Ocean Base',
         satellite: 'Satellite'
       };
       document.getElementById('toggleBaseLayer').title = `Base map: ${layerNames[key] || key}`;
@@ -225,8 +257,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.log(`Switched to ${key} basemap`);
     } catch (error) {
       console.error(`Error switching to ${key} basemap:`, error);
-      alert(`Could not load ${key} basemap. Reverting to OpenStreetMap.`);
-      switchBaseLayer('openstreet');
+      alert(`Could not load ${key} basemap. Reverting to World Ocean Base.`);
+      switchBaseLayer('ocean');
     }
   }
 
@@ -746,6 +778,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('toggleBaseLayer')?.addEventListener('click', () => {
     document.getElementById('baseLayerMenu').classList.toggle('show');
   });
+  document.getElementById('toggleWeather')?.addEventListener('click', () => {
+    mapWeatherAnimation = !mapWeatherAnimation;
+    updateWeatherAnimationState();
+  });
 
   document.querySelectorAll('.base-layer-option').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -841,11 +877,51 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   
   // Load fishing spots from API
+  function pointInPolygon(point, polygon) {
+    let inside = false;
+    const x = point[1];
+    const y = point[0];
+
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const xi = polygon[i][1], yi = polygon[i][0];
+      const xj = polygon[j][1], yj = polygon[j][0];
+      const intersect = ((yi > y) !== (yj > y)) &&
+        (x < (xj - xi) * (y - yi) / (yj - yi + 0.0000001) + xi);
+      if (intersect) inside = !inside;
+    }
+
+    return inside;
+  }
+
+  function isOceanSpot(spot) {
+    const isBoat = spot.accessibility?.toLowerCase().includes('boat');
+    const inZone = spot.depth >= 12;
+    const inIndianOcean = spot.longitude >= 39.0 && spot.longitude <= 39.5 && spot.latitude <= -5.7 && spot.latitude >= -6.4;
+
+    const zanzibarLandPolygon = [
+      [-6.0500, 39.1000],
+      [-6.3250, 39.2400],
+      [-6.4200, 39.3800],
+      [-6.1550, 39.5200],
+      [-5.7500, 39.5000],
+      [-5.7500, 39.2000],
+      [-5.9000, 39.1000],
+      [-6.0500, 39.1000]
+    ];
+
+    const onLand = pointInPolygon([spot.latitude, spot.longitude], zanzibarLandPolygon);
+    return isBoat && inZone && inIndianOcean && !onLand;
+  }
+
   async function loadFishingSpots() {
     try {
       const date = new Date().toISOString().split('T')[0];
       const res = await fetch(`${window.App.API_URL}/fishing/spots/daily?date=${date}`);
-      spots = await res.json();
+      const loadedSpots = await res.json();
+      spots = loadedSpots.filter(isOceanSpot);
+      if (spots.length === 0) {
+        spots = loadedSpots;
+      }
       renderSpotsList();
       addMarkersToMap();
       setupSatelliteDataLayers();

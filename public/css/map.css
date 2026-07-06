@@ -327,6 +327,11 @@ body.map-layout {
   color: var(--white);
 }
 
+.map-control-btn.active {
+  background: var(--primary);
+  color: var(--white);
+}
+
 /* Route Panel */
 .route-panel {
   position: absolute;
