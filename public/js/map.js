@@ -29,12 +29,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       minZoom: 0,
       crossOrigin: 'anonymous'
     }),
-    ocean: L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, Infomarineonline, Esri, and GIS User Community',
-      maxZoom: 13,
-      minZoom: 0,
-      crossOrigin: 'anonymous'
-    }),
     satellite: L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
       maxZoom: 18,
@@ -43,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     })
   };
   
-  let currentBaseLayerKey = 'ocean';
+  let currentBaseLayerKey = 'openstreet';
   let currentBaseLayer = baseLayers[currentBaseLayerKey];
   currentBaseLayer.addTo(map);
   
@@ -241,8 +235,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         openstreet: 'OpenStreetMap',
         topographic: 'Topographic',
         natgeo: 'National Geographic',
-        terrain: 'Terrain',
-        ocean: 'World Ocean Base',
         satellite: 'Satellite'
       };
       document.getElementById('toggleBaseLayer').title = `Base map: ${layerNames[key] || key}`;
@@ -251,8 +243,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.log(`Switched to ${key} basemap`);
     } catch (error) {
       console.error(`Error switching to ${key} basemap:`, error);
-      alert(`Could not load ${key} basemap. Reverting to World Ocean Base.`);
-      switchBaseLayer('ocean');
+      alert(`Could not load ${key} basemap. Reverting to OpenStreetMap.`);
+      switchBaseLayer('openstreet');
     }
   }
 

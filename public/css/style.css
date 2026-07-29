@@ -451,6 +451,39 @@ img {
   justify-content: center;
 }
 
+.about-map {
+  width: 100%;
+  max-width: 480px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--white);
+}
+
+.about-map iframe {
+  width: 100%;
+  min-height: 320px;
+  border: 0;
+}
+
+.about-map-caption {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--dark);
+}
+
+.about-map-caption strong {
+  font-weight: 600;
+}
+
+.about-map-caption span {
+  color: var(--gray);
+  font-size: 14px;
+}
+
 .map-preview {
   width: 100%;
   max-width: 400px;
