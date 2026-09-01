@@ -31,38 +31,79 @@ const oceanSpotTemplates = [
   { id: 1024, name: 'South Reef Line', description: 'Long reef line to the south with stable surface water and strong catches.', latitude: -6.2050, longitude: 39.2950, fish_type: 'Snapper, Kingfish', best_season: 'Jul-Oct', depth: 26, accessibility: 'Boat', safety_level: 'Moderate' }
 ];
 
-const getDailyOceanMetrics = (date, index) => {
+const calculateSeaElevation = (date, index, latitude, longitude) => {
+  const day = date.getUTCDate();
+  const baseDepth = 55 + Math.sin((day + index + latitude) / 3) * 28;
+  const localGradient = Math.abs(longitude - 39.3) * 45;
+  return parseFloat((-baseDepth - localGradient).toFixed(1));
+};
+
+const calculateWaterMovement = (date, index, latitude, longitude) => {
+  const day = date.getUTCDate();
+  const current = 18 + Math.sin((day + index + longitude) / 4) * 10 + Math.cos(latitude * 20) * 7;
+  return parseFloat(Math.max(10, Math.min(60, current)).toFixed(1));
+};
+
+const calculateWindSpeed = (date, index, latitude, longitude) => {
+  const day = date.getUTCDate();
+  const wind = 12 + Math.cos((day + index + latitude) / 3) * 9 + Math.abs(longitude - 39.3) * 8;
+  return parseFloat(Math.max(6, Math.min(35, wind)).toFixed(1));
+};
+
+const getHabitatType = (temp, chlorophyll, waterMovement, windSpeed, seaElevation) => {
+  if (chlorophyll >= 0.19 && temp >= 26 && temp <= 29 && waterMovement >= 18 && windSpeed <= 28) return 'pelagic_convergence_zone';
+  if (chlorophyll >= 0.17 && temp >= 24 && temp <= 30 && Math.abs(seaElevation) >= 40) return 'plankton_rich_shelf_edge';
+  if (chlorophyll >= 0.15 && waterMovement >= 16) return 'nutrient_bloom_patch';
+  if (waterMovement >= 20) return 'ocean_current_lane';
+  return 'warm_stable_surface_patch';
+};
+
+const getDailyOceanMetrics = (date, index, latitude = -6.1, longitude = 39.3) => {
   const day = date.getUTCDate();
   const temp = 25 + Math.sin((day + index) / 3) * 1.8 + ((index % 4) - 2) * 0.15;
   const chlorophyll = 0.14 + Math.cos((day + index) / 4) * 0.06 + ((index % 3) * 0.01);
+  const seaElevation = calculateSeaElevation(date, index, latitude, longitude);
+  const waterMovement = calculateWaterMovement(date, index, latitude, longitude);
+  const windSpeed = calculateWindSpeed(date, index, latitude, longitude);
+  const habitatType = getHabitatType(temp, Math.max(0.08, chlorophyll), waterMovement, windSpeed, seaElevation);
   return {
     sea_surface_temp: parseFloat(temp.toFixed(1)),
-    chlorophyll_a: parseFloat(Math.max(0.08, chlorophyll).toFixed(3))
+    chlorophyll_a: parseFloat(Math.max(0.08, chlorophyll).toFixed(3)),
+    sea_elevation_m: seaElevation,
+    water_movement: waterMovement,
+    wind_speed_kmh: windSpeed,
+    habitat_type: habitatType
   };
 };
 
-const determineFishingZone = (temp, chlorophyll) => {
-  if (chlorophyll >= 0.19 && temp >= 26 && temp <= 29) return 'Pelagic convergence zone';
-  if (chlorophyll >= 0.17 && temp >= 24 && temp <= 30) return 'Plankton-rich shelf edge';
-  if (chlorophyll >= 0.15) return 'Nutrient bloom patch';
+const determineFishingZone = (temp, chlorophyll, waterMovement, windSpeed) => {
+  if (chlorophyll >= 0.19 && temp >= 26 && temp <= 29 && waterMovement >= 18 && windSpeed <= 28) return 'Pelagic convergence zone';
+  if (chlorophyll >= 0.17 && temp >= 24 && temp <= 30 && waterMovement >= 16) return 'Plankton-rich shelf edge';
+  if (chlorophyll >= 0.15 && waterMovement >= 14) return 'Nutrient bloom patch';
   return 'Warm stable surface patch';
 };
 
-const calculateConvergenceIndex = (temp, chlorophyll) => {
+const calculateConvergenceIndex = (temp, chlorophyll, waterMovement, windSpeed, seaElevation) => {
   let index = 40;
   index += Math.max(0, 20 - Math.abs(temp - 28) * 3);
   index += Math.min(30, Math.max(0, (chlorophyll - 0.12) * 150));
+  index += Math.max(0, (waterMovement - 12) * 1.6);
+  index += Math.max(0, 30 - Math.abs(windSpeed - 18) * 1.5);
+  index += Math.max(0, (Math.abs(seaElevation) - 30) * 0.08);
   return Math.min(100, Math.round(index));
 };
 
-const calculateFishingScore = (spot, temp, chlorophyll) => {
+const calculateFishingScore = (spot, temp, chlorophyll, waterMovement, windSpeed, seaElevation) => {
   let score = 50;
   score += Math.max(0, 14 - Math.abs(temp - 27) * 2);
   score += Math.min(20, chlorophyll * 120);
+  score += Math.min(12, Math.max(0, waterMovement - 12));
+  score += Math.max(0, 10 - Math.abs(windSpeed - 18));
+  score += Math.abs(seaElevation) > 50 ? 8 : 4;
   score += spot.depth > 30 ? 8 : 4;
   score += spot.safety_level === 'Excellent' ? 6 : spot.safety_level === 'Good' ? 4 : 2;
   score += spot.best_season.toLowerCase().includes('year-round') ? 5 : 0;
-  score += calculateConvergenceIndex(temp, chlorophyll) * 0.15;
+  score += calculateConvergenceIndex(temp, chlorophyll, waterMovement, windSpeed, seaElevation) * 0.15;
   return Math.min(100, Math.round(score));
 };
 
@@ -75,9 +116,9 @@ const generateDailyOceanSpots = (date, latitude, longitude, count = 24) => {
   const useDistance = typeof latitude === 'number' && typeof longitude === 'number';
   return oceanSpotTemplates
     .map((spot, idx) => {
-      const metrics = getDailyOceanMetrics(date, idx);
-      const zone = determineFishingZone(metrics.sea_surface_temp, metrics.chlorophyll_a);
-      const convergenceIndex = calculateConvergenceIndex(metrics.sea_surface_temp, metrics.chlorophyll_a);
+      const metrics = getDailyOceanMetrics(date, idx, spot.latitude, spot.longitude);
+      const zone = determineFishingZone(metrics.sea_surface_temp, metrics.chlorophyll_a, metrics.water_movement, metrics.wind_speed_kmh);
+      const convergenceIndex = calculateConvergenceIndex(metrics.sea_surface_temp, metrics.chlorophyll_a, metrics.water_movement, metrics.wind_speed_kmh, metrics.sea_elevation_m);
       const distance = useDistance
         ? calculateDistance(latitude, longitude, spot.latitude, spot.longitude)
         : null;
@@ -87,7 +128,7 @@ const generateDailyOceanSpots = (date, latitude, longitude, count = 24) => {
         ...createOceanSourceMeta(),
         fishing_zone: zone,
         convergence_index: convergenceIndex,
-        fishing_score: calculateFishingScore(spot, metrics.sea_surface_temp, metrics.chlorophyll_a),
+        fishing_score: calculateFishingScore(spot, metrics.sea_surface_temp, metrics.chlorophyll_a, metrics.water_movement, metrics.wind_speed_kmh, metrics.sea_elevation_m),
         distance: distance !== null ? parseFloat(distance.toFixed(1)) : null
       };
     })
@@ -151,6 +192,10 @@ router.get('/zones', (req, res) => {
       best_season: spot.best_season,
       sea_surface_temp: spot.sea_surface_temp,
       chlorophyll_a: spot.chlorophyll_a,
+      sea_elevation_m: spot.sea_elevation_m,
+      water_movement: spot.water_movement,
+      wind_speed_kmh: spot.wind_speed_kmh,
+      habitat_type: spot.habitat_type,
       fishing_zone: spot.fishing_zone,
       convergence_index: spot.convergence_index,
       fishing_score: spot.fishing_score,

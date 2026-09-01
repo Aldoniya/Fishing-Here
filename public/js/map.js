@@ -34,10 +34,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       maxZoom: 18,
       minZoom: 0,
       crossOrigin: 'anonymous'
+    }),
+    bathymetry: L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Bathymetry/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; Bathymetry, NOAA, GEBCO, and contributors',
+      maxZoom: 18,
+      minZoom: 0,
+      crossOrigin: 'anonymous'
     })
   };
   
-  let currentBaseLayerKey = 'openstreet';
+  let currentBaseLayerKey = 'bathymetry';
   let currentBaseLayer = baseLayers[currentBaseLayerKey];
   currentBaseLayer.addTo(map);
   
@@ -235,7 +241,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         openstreet: 'OpenStreetMap',
         topographic: 'Topographic',
         natgeo: 'National Geographic',
-        satellite: 'Satellite'
+        satellite: 'Satellite',
+        bathymetry: 'Bathymetry'
       };
       document.getElementById('toggleBaseLayer').title = `Base map: ${layerNames[key] || key}`;
       
@@ -880,9 +887,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function isOceanSpot(spot) {
+    const latitude = Number(spot.latitude);
+    const longitude = Number(spot.longitude);
+    const depth = Number(spot.depth || 0);
+    const temp = Number(spot.sea_surface_temp || 0);
+    const chlorophyll = Number(spot.chlorophyll_a || 0);
+    const waterMovement = Number(spot.water_movement || 0);
+    const windSpeed = Number(spot.wind_speed_kmh || 0);
+    const seaElevation = Math.abs(Number(spot.sea_elevation_m || 0));
+    const habitat = (spot.habitat_type || '').toLowerCase();
     const isBoat = spot.accessibility?.toLowerCase().includes('boat');
-    const inZone = spot.depth >= 12;
-    const inIndianOcean = spot.longitude >= 39.0 && spot.longitude <= 39.5 && spot.latitude <= -5.7 && spot.latitude >= -6.4;
+    const inIndianOcean = longitude >= 39.0 && longitude <= 39.8 && latitude <= -5.5 && latitude >= -6.8;
+    const isValidDepth = depth >= 12 && depth <= 80;
+    const isValidSst = temp >= 24 && temp <= 30;
+    const isValidChlorophyll = chlorophyll >= 0.12 && chlorophyll <= 0.32;
+    const isValidCurrent = waterMovement >= 12 && waterMovement <= 60;
+    const isValidWind = windSpeed >= 8 && windSpeed <= 35;
+    const isValidBathymetry = seaElevation >= 20 && seaElevation <= 250;
+    const hasValidHabitat = habitat.includes('pelagic') || habitat.includes('convergence') || habitat.includes('shelf') || habitat.includes('ridge') || habitat.includes('channel') || habitat.includes('bank') || habitat.includes('patch') || habitat.includes('ocean') || habitat.includes('current');
 
     const zanzibarLandPolygon = [
       [-6.0500, 39.1000],
@@ -895,8 +917,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       [-6.0500, 39.1000]
     ];
 
-    const onLand = pointInPolygon([spot.latitude, spot.longitude], zanzibarLandPolygon);
-    return isBoat && inZone && inIndianOcean && !onLand;
+    const onLand = pointInPolygon([latitude, longitude], zanzibarLandPolygon);
+    return Boolean(isBoat && inIndianOcean && !onLand && isValidDepth && isValidSst && isValidChlorophyll && isValidCurrent && isValidWind && isValidBathymetry && hasValidHabitat);
   }
 
   async function loadFishingSpots() {
@@ -904,10 +926,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       const date = new Date().toISOString().split('T')[0];
       const res = await fetch(`${window.App.API_URL}/fishing/spots/daily?date=${date}`);
       const loadedSpots = await res.json();
-      spots = loadedSpots.filter(isOceanSpot);
-      if (spots.length === 0) {
-        spots = loadedSpots;
+      const validMarineSpots = loadedSpots.filter(isOceanSpot);
+      spots = validMarineSpots.length > 0 ? validMarineSpots : [];
+
+      if (!spots.length) {
+        console.warn('No valid marine fishing hotspots were found for the current Indian Ocean filter.');
       }
+
       renderSpotsList();
       addMarkersToMap();
       setupSatelliteDataLayers();
